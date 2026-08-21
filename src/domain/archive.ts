@@ -2,10 +2,11 @@
 
 import type { ArchivePeriod, IsoDate, Op } from './model'
 
-/** Archive from `from` onward. Any later or overlapping periods collapse into one open period. */
+/** Archive from `from` onward. Later or overlapping periods collapse into one open period; a period already covering `from` keeps its start. */
 export function archiveFrom(periods: readonly ArchivePeriod[], from: IsoDate): ArchivePeriod[] {
   const kept = periods.filter((p) => p.to !== null && p.to <= from)
-  return [...kept, { from, to: null }]
+  const covering = periods.find((p) => p.from < from && (p.to === null || p.to > from))
+  return [...kept, { from: covering ? covering.from : from, to: null }]
 }
 
 /** Bring the op back from `from` onward: close the period that covers or follows `from`. */

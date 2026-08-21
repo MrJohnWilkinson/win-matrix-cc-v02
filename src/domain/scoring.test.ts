@@ -87,6 +87,11 @@ describe('archive spans (D9)', () => {
     const periods = archiveFrom([{ from: '2026-08-10', to: null }], '2026-08-01')
     expect(periods).toEqual([{ from: '2026-08-01', to: null }])
   })
+  it('archiving inside a closed period keeps its start (history stays archived)', () => {
+    const periods = archiveFrom([{ from: '2026-01-01', to: '2026-03-01' }], '2026-02-01')
+    expect(periods).toEqual([{ from: '2026-01-01', to: null }])
+    expect(archiveFrom([{ from: '2026-01-01', to: '2026-03-01' }], '2026-03-01')).toEqual([{ from: '2026-01-01', to: '2026-03-01' }, { from: '2026-03-01', to: null }])
+  })
   it('restoring before a period removes it', () => {
     expect(restoreFrom([{ from: '2026-08-10', to: null }], '2026-08-01')).toEqual([])
   })
