@@ -31,7 +31,7 @@ a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
 </style>
 </helmet>
 <div style="height: 100vh; display: flex; flex-direction: column; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body);">
-  <div class="nav" style="gap: 24px;">
+  <div class="nav" style="gap: 16px; row-gap: 10px; flex-wrap: wrap;">
     <div class="nav-brand" style="display: flex; align-items: center; gap: 10px; margin-right: 0;">
       <span style="width: 14px; height: 14px; background: var(--color-accent); display: inline-block;"></span>
       WIN MATRIX
@@ -40,9 +40,13 @@ a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
       <a href="./Win%20Matrix.dc.html" style="text-decoration: none; color: var(--color-accent); font: 600 13px var(--font-heading); letter-spacing: 0.04em; padding: 4px 0; box-shadow: inset 0 -2px 0 var(--color-accent);" aria-current="page">MATRIX</a>
       <a href="./Scoreboard.dc.html" style="text-decoration: none; color: inherit; font: 600 13px var(--font-heading); letter-spacing: 0.04em; padding: 4px 0;">SCOREBOARD</a>
     </div>
-    <button class="btn btn-secondary" onClick="{{toggleTheme}}" title="Switch theme">{{themeLabel}}</button>
-    <button class="btn btn-secondary" onClick="{{openAdd}}">+ Add op</button>
-    <button class="btn btn-primary" onClick="{{openShare}}">Share score</button>
+    <sc-if value="{{navInline}}" hint-placeholder-val="{{true}}">
+      <button class="btn btn-secondary" onClick="{{toggleTheme}}" title="Switch theme">{{themeLabel}}</button>
+      <button class="btn btn-primary" onClick="{{openShare}}">Share score</button>
+    </sc-if>
+    <sc-if value="{{navBurger}}" hint-placeholder-val="{{false}}">
+      <button class="btn btn-secondary" onClick="{{toggleBurger}}" title="Menu" style="min-width: 44px;">☰</button>
+    </sc-if>
     <sc-if value="{{signedIn}}" hint-placeholder-val="{{true}}">
       <button class="btn btn-ghost" onClick="{{toggleAccount}}" title="Account" style="display: inline-flex; align-items: center; gap: 8px;">
         <span style="width: 8px; height: 8px; background: var(--score-good);"></span>{{userName}}
@@ -52,6 +56,14 @@ a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
       <a class="btn btn-ghost" href="./Login.dc.html" style="text-decoration: none;">Sign in</a>
     </sc-if>
   </div>
+
+  <sc-if value="{{burgerOpen}}" hint-placeholder-val="{{false}}">
+    <div style="position: fixed; inset: 0; z-index: 40;" onClick="{{closeBurger}}"></div>
+    <div style="position: fixed; z-index: 41; right: 12px; top: 60px; width: 220px; background: var(--color-elev); box-shadow: var(--shadow-lg); border: 2px solid var(--color-divider); padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+      <button class="btn btn-primary btn-block" onClick="{{burgerShare}}">Share score</button>
+      <button class="btn btn-secondary btn-block" onClick="{{toggleTheme}}">{{themeLabel}} theme</button>
+    </div>
+  </sc-if>
 
   <sc-if value="{{accountOpen}}" hint-placeholder-val="{{false}}">
     <div style="position: fixed; inset: 0; z-index: 40;" onClick="{{closeAccount}}"></div>
@@ -69,20 +81,20 @@ a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
     </div>
   </sc-if>
 
-  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1.6fr; border-bottom: 2px solid var(--color-divider);">
-    <div style="padding: 20px 24px;">
+  <div style="display: grid; grid-template-columns: {{statCols}}; border-bottom: 2px solid var(--color-divider);">
+    <div style="padding: {{statPad}};">
       <div style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-neutral-600);">Today</div>
-      <div style="font: 800 44px var(--font-heading); letter-spacing: -0.02em; color: {{statToday.c}};">{{statToday.v}}</div>
+      <div style="font: 800 {{statFs}}px var(--font-heading); letter-spacing: -0.02em; color: {{statToday.c}};">{{statToday.v}}</div>
     </div>
-    <div style="padding: 20px 24px; border-left: 1px solid var(--color-divider);">
+    <div style="padding: {{statPad}}; border-left: 1px solid var(--color-divider);">
       <div style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-neutral-600);">7-day avg</div>
-      <div style="font: 800 44px var(--font-heading); letter-spacing: -0.02em; color: {{stat7.c}};">{{stat7.v}}</div>
+      <div style="font: 800 {{statFs}}px var(--font-heading); letter-spacing: -0.02em; color: {{stat7.c}};">{{stat7.v}}</div>
     </div>
-    <div style="padding: 20px 24px; border-left: 1px solid var(--color-divider);">
+    <div style="padding: {{statPad}}; border-left: 1px solid var(--color-divider);">
       <div style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-neutral-600);">28-day avg</div>
-      <div style="font: 800 44px var(--font-heading); letter-spacing: -0.02em; color: {{stat28.c}};">{{stat28.v}}</div>
+      <div style="font: 800 {{statFs}}px var(--font-heading); letter-spacing: -0.02em; color: {{stat28.c}};">{{stat28.v}}</div>
     </div>
-    <div style="padding: 20px 24px; border-left: 1px solid var(--color-divider); display: flex; flex-direction: column; justify-content: center; gap: 4px;">
+    <div style="padding: {{statPad}}; border-left: {{ruleBorder}}; border-top: {{ruleTop}}; grid-column: {{ruleSpan}}; display: flex; flex-direction: column; justify-content: center; gap: 4px;">
       <div style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-accent); font-weight: 800;">The 85 rule</div>
       <div style="font-size: 13px; line-height: 1.45; max-width: 420px; text-wrap: pretty;">Keep every op at 85 or better. If one slips under, make it easier or remove it. Focus on the wins.</div>
     </div>
@@ -99,7 +111,9 @@ a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
       <span style="display: inline-flex; align-items: center; gap: 6px;" title="Change — not done: make it easier or remove it"><span style="width: 12px; height: 12px; background: #f59f00;"></span>C CHANGE</span>
       <span style="display: inline-flex; align-items: center; gap: 6px;" title="Bye — not required today"><span style="width: 12px; height: 12px; background: #17a2b8;"></span>B BYE</span>
     </div>
-    <div style="margin-left: auto; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-neutral-600);">Click to cycle · Drag to paint a run</div>
+    <sc-if value="{{wide}}" hint-placeholder-val="{{true}}">
+      <div style="margin-left: auto; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-neutral-600);">Click to cycle · Drag to paint a run</div>
+    </sc-if>
   </div>
 
   <sc-if value="{{noOps}}" hint-placeholder-val="{{false}}">
@@ -112,36 +126,37 @@ a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
   </sc-if>
 
   <sc-if value="{{hasOps}}" hint-placeholder-val="{{true}}">
-  <div style="flex: 1; min-height: 0; overflow: auto; padding: 0 24px 32px;" ref="{{scrollRef}}">
-    <div style="display: grid; grid-template-columns: {{gridCols}}; position: sticky; top: 0; z-index: 5; background: var(--color-bg); border-bottom: 2px solid var(--color-divider); align-items: end;">
-      <div style="padding: 8px 12px 10px 10px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-neutral-600);">Day</div>
-      <div style="padding: 8px 12px 10px 0; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-neutral-600); text-align: right;">Score</div>
+  <div style="flex: 1; min-height: 0; overflow: auto; padding: 0 {{padX}}px 32px; scroll-snap-type: x proximity; scroll-padding-left: {{snapPad}}px;" ref="{{scrollRef}}">
+    <div style="display: grid; grid-template-columns: {{gridCols}}; width: max-content; min-width: 100%; position: sticky; top: 0; z-index: 5; background: var(--color-bg); border-bottom: 2px solid var(--color-divider); align-items: end;">
+      <div style="padding: 8px 12px 10px 10px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-neutral-600); position: sticky; left: 0; z-index: 2; background: var(--color-bg); align-self: stretch; display: flex; align-items: flex-end;">Day</div>
+      <div style="padding: 8px 12px 10px 0; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-neutral-600); text-align: right; position: sticky; left: {{dayW}}px; z-index: 2; background: var(--color-bg); box-shadow: 1px 0 0 var(--color-divider); align-self: stretch; display: flex; align-items: flex-end; justify-content: flex-end;">Score</div>
       <sc-for list="{{hops}}" as="op" hint-placeholder-count="6">
-        <button style="all: unset; box-sizing: border-box; height: 130px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 8px; padding: 8px 0 10px; cursor: pointer; border-left: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);" style-hover="background: color-mix(in srgb, var(--color-text) 6%, transparent);" onClick="{{op.menu}}" title="{{op.title}}">
+        <button style="all: unset; box-sizing: border-box; height: 130px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 8px; padding: 8px 0 10px; cursor: pointer; scroll-snap-align: start; border-left: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);" style-hover="background: color-mix(in srgb, var(--color-text) 6%, transparent);" onClick="{{op.menu}}" title="{{op.title}}">
           <span style="writing-mode: vertical-rl; transform: rotate(180deg); font: 600 12px var(--font-heading); letter-spacing: 0.02em; white-space: nowrap; max-height: 86px; overflow: hidden;">{{op.name}}</span>
           <span style="width: 8px; height: 8px; background: {{op.tag}};"></span>
         </button>
       </sc-for>
+      <button style="all: unset; box-sizing: border-box; height: 130px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 8px 0 12px; cursor: pointer; border-left: 1px dashed color-mix(in srgb, var(--color-text) 35%, transparent); color: var(--color-neutral-600); font: 600 20px var(--font-heading);" style-hover="background: color-mix(in srgb, var(--color-text) 6%, transparent); color: var(--color-text);" onClick="{{openAdd}}" title="Add an op">+</button>
     </div>
     <sc-for list="{{avgRows}}" as="avr" hint-placeholder-count="2">
-      <div style="display: grid; grid-template-columns: {{gridCols}}; align-items: stretch; height: 34px; background: var(--color-surface); border-bottom: {{avr.rule}}; position: sticky; top: {{avr.top}}px; z-index: 4;">
-        <div style="display: flex; align-items: center; padding-left: 10px; font: 600 12px var(--font-heading); letter-spacing: 0.03em;">{{avr.label}}</div>
-        <div style="display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; font: 800 14px var(--font-heading); color: {{avr.totalC}};">{{avr.total}}</div>
+      <div style="display: grid; grid-template-columns: {{gridCols}}; width: max-content; min-width: 100%; align-items: stretch; height: 34px; background: var(--color-surface); border-bottom: {{avr.rule}}; position: sticky; top: {{avr.top}}px; z-index: 4;">
+        <div style="display: flex; align-items: center; padding-left: 10px; font: 600 12px var(--font-heading); letter-spacing: 0.03em; position: sticky; left: 0; z-index: 2; background: var(--color-surface);">{{avr.label}}</div>
+        <div style="display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; font: 800 14px var(--font-heading); color: {{avr.totalC}}; position: sticky; left: {{dayW}}px; z-index: 2; background: var(--color-surface); box-shadow: 1px 0 0 var(--color-divider);">{{avr.total}}</div>
         <sc-for list="{{avr.cells}}" as="ac" hint-placeholder-count="6">
           <div style="display: flex; align-items: center; justify-content: center; border-left: 1px solid color-mix(in srgb, var(--color-text) 6%, transparent); font: 800 13px var(--font-heading); color: {{ac.c}};">{{ac.v}}</div>
         </sc-for>
       </div>
     </sc-for>
     <sc-for list="{{rows}}" as="row" hint-placeholder-count="8">
-      <div style="display: grid; grid-template-columns: {{gridCols}}; align-items: stretch; height: 36px; background: {{row.bg}}; box-shadow: {{row.edge}}; opacity: {{row.dim}}; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);">
-        <div style="display: flex; align-items: center; gap: 8px; padding: 0 12px 0 10px; font-size: 12px;">
-          <span style="width: 34px; font-weight: 800; font-family: var(--font-heading); color: {{row.dowC}};">{{row.dow}}</span>
+      <div style="display: grid; grid-template-columns: {{gridCols}}; width: max-content; min-width: 100%; align-items: stretch; height: {{rowH}}px; background: {{row.bg}}; box-shadow: {{row.edge}}; opacity: {{row.dim}}; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);">
+        <div style="display: flex; align-items: center; gap: 8px; padding: 0 12px 0 10px; font-size: 12px; position: sticky; left: 0; z-index: 2; background: {{row.bg}}; overflow: hidden; white-space: nowrap;">
+          <span style="width: 34px; flex: none; font-weight: 800; font-family: var(--font-heading); color: {{row.dowC}};">{{row.dow}}</span>
           <span style="color: var(--color-neutral-700);">{{row.dateLabel}}</span>
           <span style="font: 800 9px var(--font-heading); letter-spacing: 0.08em; color: var(--color-accent);">{{row.badge}}</span>
         </div>
-        <div style="display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; font: 800 14px var(--font-heading); color: {{row.scoreC}};">{{row.score}}</div>
+        <div style="display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; font: 800 14px var(--font-heading); color: {{row.scoreC}}; position: sticky; left: {{dayW}}px; z-index: 2; background: {{row.bg}}; box-shadow: 1px 0 0 var(--color-divider);">{{row.score}}</div>
         <sc-for list="{{row.cells}}" as="cell" hint-placeholder-count="6">
-          <div style="padding: 3px; border-left: 1px solid color-mix(in srgb, var(--color-text) 6%, transparent);">
+          <div style="padding: 3px; border-left: 1px solid color-mix(in srgb, var(--color-text) 6%, transparent); scroll-snap-align: start;">
             <button style="all: unset; box-sizing: border-box; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font: 800 12px var(--font-heading); cursor: {{cell.cursor}}; user-select: none; background: {{cell.bg}}; color: {{cell.fg}}; box-shadow: {{cell.edge}}; opacity: {{cell.dim}};" onMouseDown="{{cell.down}}" onMouseEnter="{{cell.enter}}" title="{{cell.title}}">{{cell.label}}</button>
           </div>
         </sc-for>
@@ -302,7 +317,7 @@ a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
   </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;defaultWindow&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;Roll 7&quot;, &quot;options&quot;: [&quot;Today&quot;, &quot;Roll 7&quot;, &quot;Roll 28&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Matrix&quot;}, &quot;showFuture&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Matrix&quot;}, &quot;weekendShading&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Matrix&quot;}, &quot;sampleData&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Data&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;defaultWindow&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;Roll 7&quot;, &quot;options&quot;: [&quot;Today&quot;, &quot;Roll 7&quot;, &quot;Roll 28&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Matrix&quot;}, &quot;showFuture&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Matrix&quot;}, &quot;weekendShading&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Matrix&quot;}, &quot;mobileNav&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;Wrap&quot;, &quot;options&quot;: [&quot;Wrap&quot;, &quot;Hamburger&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Mobile&quot;}, &quot;sampleData&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Data&quot;}}">
 class Component extends DCLogic {
   constructor(props) {
     super(props);
@@ -330,7 +345,10 @@ class Component extends DCLogic {
         { id: 'g6', name: 'Sam', joined: j(9), depth: 'off' }
       ] };
     }
-    this.state = { user, ops: ops || [], entries: entries || {}, sharing, win: null, menu: null, share: false, copied: false, copiedPub: false, add: null, arch: null, del: null, account: false };
+    let winSaved = null; try { winSaved = localStorage.getItem('wm-window'); } catch (e) {}
+    this._win0 = winSaved;
+    this._mq = window.matchMedia ? window.matchMedia('(max-width: 640px)') : null;
+    this.state = { user, ops: ops || [], entries: entries || {}, sharing, win: null, menu: null, share: false, copied: false, copiedPub: false, add: null, arch: null, del: null, account: false, burger: false };
   }
   // PROTOTYPE SEAM: generated sample ops/entries. Production: load from Supabase (ops, entries tables).
   sample() {
@@ -408,9 +426,9 @@ class Component extends DCLogic {
       return { entries: { ...s.entries, [iso]: day } };
     }, () => this.persist());
   }
-  componentDidMount() { this._up = () => { this._paint = undefined; }; window.addEventListener('mouseup', this._up); setTimeout(() => this.scrollToToday(), 60); document.body.dataset.theme = this._theme; }
+  componentDidMount() { this._up = () => { this._paint = undefined; }; window.addEventListener('mouseup', this._up); setTimeout(() => this.scrollToToday(), 60); document.body.dataset.theme = this._theme; if (this._mq) { this._mqL = () => this.forceUpdate(); this._mq.addEventListener('change', this._mqL); } }
   scrollToToday() { if (this._sc) this._sc.scrollTop = this._sc.scrollHeight; }
-  componentWillUnmount() { window.removeEventListener('mouseup', this._up); }
+  componentWillUnmount() { window.removeEventListener('mouseup', this._up); if (this._mq && this._mqL) this._mq.removeEventListener('change', this._mqL); }
   scoreColor(v) { return v === null ? 'var(--color-neutral-500)' : v >= 85 ? 'var(--score-good)' : 'var(--score-bad)'; }
   shareVals(u, MON) {
     const sh = this.state.sharing;
@@ -463,7 +481,9 @@ class Component extends DCLogic {
     const HDR = 132, AVGH = 34;
     const ST = { W: { bg: '#2fb344', fg: '#0c2a12', name: 'WIN' }, C: { bg: '#f59f00', fg: '#231803', name: 'CHANGE — make it easier or remove it' }, B: { bg: '#17a2b8', fg: '#062a30', name: 'BYE — not required' } };
     const today = this.mid(new Date()), todayIso = this.iso(today);
-    const win = this.state.win ?? ({ 'Today': 'r1', 'Roll 7': 'r7', 'Roll 28': 'r28' }[this.props.defaultWindow] ?? 'r7');
+    const win = this.state.win ?? this._win0 ?? ({ 'Today': 'r1', 'Roll 7': 'r7', 'Roll 28': 'r28' }[this.props.defaultWindow] ?? 'r7');
+    const narrow = !!(this._mq && this._mq.matches);
+    const dayW = narrow ? 100 : 150, scoreW = narrow ? 48 : 90, colW = narrow ? 44 : 46;
     const weekendShading = this.props.weekendShading ?? true;
     const showFuture = this.props.showFuture ?? true;
     let dates = [];
@@ -498,7 +518,7 @@ class Component extends DCLogic {
         key: dIso, dow: DOW[d.getDay()], dateLabel: d.getDate() + ' ' + MON[d.getMonth()],
         dowC: isToday ? 'var(--color-accent)' : wknd ? 'var(--color-neutral-500)' : 'var(--color-text)',
         badge: isToday ? 'TODAY' : future ? 'PLAN' : '',
-        bg: isToday ? 'var(--tint-today)' : (wknd && weekendShading) ? 'var(--color-surface)' : 'transparent',
+        bg: isToday ? 'var(--tint-today)' : (wknd && weekendShading) ? 'var(--color-surface)' : 'var(--color-bg)',
         edge: isToday ? 'inset 3px 0 0 var(--color-accent)' : 'none',
         dim: future ? '0.55' : '1',
         score: future ? '' : this.fmtScore(sc), scoreC: this.scoreColor(sc), cells
@@ -517,7 +537,7 @@ class Component extends DCLogic {
     }));
     const winOpts = [['r1', 'TODAY'], ['r7', 'ROLL 7'], ['r28', 'ROLL 28']].map(([id, label]) => ({
       key: id, label, bg: id === win ? 'var(--color-text)' : 'transparent', fg: id === win ? 'var(--color-bg)' : 'var(--color-text)',
-      pick: () => this.setState({ win: id }, () => this.scrollToToday())
+      pick: () => { try { localStorage.setItem('wm-window', id); } catch (e) {} this._win0 = id; this.setState({ win: id }, () => this.scrollToToday()); }
     }));
     const SW = this.tagSwatches();
     const menu = this.state.menu, mOp = menu && this.state.ops.find(o => o.id === menu.id);
@@ -530,7 +550,21 @@ class Component extends DCLogic {
     const archOp = arch && this.state.ops.find(o => o.id === arch.id);
     const delOp = del && this.state.ops.find(o => o.id === del.id);
     return {
-      gridCols: '150px 90px repeat(' + ops.length + ', 46px)',
+      gridCols: dayW + 'px ' + scoreW + 'px repeat(' + Math.max(ops.length, 1) + ', ' + colW + 'px) ' + colW + 'px',
+      dayW, rowH: narrow ? 44 : 36, padX: narrow ? 12 : 24, snapPad: dayW + scoreW,
+      wide: !narrow,
+      statCols: narrow ? '1fr 1fr 1fr' : '1fr 1fr 1fr 1.6fr',
+      statPad: narrow ? '14px 16px' : '20px 24px',
+      statFs: narrow ? 30 : 44,
+      ruleSpan: narrow ? '1 / -1' : 'auto',
+      ruleBorder: narrow ? 'none' : '1px solid var(--color-divider)',
+      ruleTop: narrow ? '1px solid var(--color-divider)' : 'none',
+      navInline: !narrow || (this.props.mobileNav ?? 'Hamburger') === 'Wrap',
+      navBurger: narrow && (this.props.mobileNav ?? 'Hamburger') === 'Hamburger',
+      burgerOpen: this.state.burger,
+      toggleBurger: () => this.setState(s => ({ burger: !s.burger, account: false })),
+      closeBurger: () => this.setState({ burger: false }),
+      burgerShare: () => this.setState({ burger: false, share: true, copied: false, copiedPub: false }),
       scrollRef: el => { this._sc = el; },
       noOps: ops.length === 0, hasOps: ops.length > 0,
       signedIn: !!u, signedOut: !u,

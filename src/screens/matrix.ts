@@ -17,6 +17,11 @@ type Win = 'r1' | 'r7' | 'r28'
 // Non-semantic tag palette (A5): 9 muted hues, never W-green, C-amber, Bye-teal or accent red.
 const SWATCHES = ['#339af0', '#3b5bdb', '#7048e8', '#9c36b5', '#d6336c', '#f783ac', '#a5673f', '#6c757d', 'var(--color-text)']
 const HDR = 132, AVGH = 34
+const WIN_KEY = 'wm-window' // per-device window choice (M4)
+/** Phone breakpoint (M2-M7). The same grid, tighter: ops stay columns, Day + Score pin, the ops area scrolls. */
+const phoneMq = window.matchMedia('(max-width: 640px)')
+interface Dims { phone: boolean; dayW: number; scoreW: number; colW: number; rowH: number; padX: number }
+const dims = (): Dims => phoneMq.matches ? { phone: true, dayW: 100, scoreW: 48, colW: 44, rowH: 44, padX: 12 } : { phone: false, dayW: 150, scoreW: 90, colW: 46, rowH: 36, padX: 24 }
 const DOW = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const STATE_NAME: Record<EntryState, string> = { W: 'WIN', C: 'CHANGE — make it easier or remove it', B: 'BYE — not required' }
@@ -64,29 +69,30 @@ function view(): Html {
   const t = dailyScore(S.data.ops, S.data.entries, S.today, start())
   const a7 = overallAverage(S.data.ops, S.data.entries, 7, S.today, start())
   const a28 = overallAverage(S.data.ops, S.data.entries, 28, S.today, start())
-  const gridCols = `150px 90px repeat(${ops.length}, 46px)`
+  const d = dims()
+  // Ghost "+" column after the last op (M6): the add-op entry point lives in the grid, not the nav.
+  const gridCols = `${d.dayW}px ${d.scoreW}px repeat(${ops.length}, ${d.colW}px) ${d.colW}px`
+  const statPad = d.phone ? '14px 16px' : '20px 24px'
   const stat = (k: string, v: number | null) => html`
-    <div style="padding: 20px 24px; ${k === 'Today' ? '' : 'border-left: 1px solid var(--color-divider);'}">
+    <div style="padding: ${statPad}; ${k === 'Today' ? '' : 'border-left: 1px solid var(--color-divider);'}">
       <div class="kicker">${k}</div>
-      <div class="tone-${tone(v)}" style="font: 800 44px var(--font-heading); letter-spacing: -0.02em;">${formatScore(v)}</div>
+      <div class="tone-${tone(v)}" style="font: 800 ${d.phone ? 30 : 44}px var(--font-heading); letter-spacing: -0.02em;">${formatScore(v)}</div>
     </div>`
 
   return html`
     <div style="height: 100vh; display: flex; flex-direction: column;">
-      ${navView({ page: 'matrix', userName: S.profile.name, actions: html`
-        <button class="btn btn-secondary" data-act="open-add">+ Add op</button>
-        <button class="btn btn-primary" data-act="open-share">Share score</button>` })}
+      ${navView({ page: 'matrix', userName: S.profile.name, actions: html`<button class="btn btn-primary" data-act="open-share">Share score</button>` })}
       ${when(S.account, () => accountMenuView({ email: S.email, name: S.profile.name, startDate: S.profile.startDate }))}
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1.6fr; border-bottom: 2px solid var(--color-divider);">
+      <div style="display: grid; grid-template-columns: ${d.phone ? '1fr 1fr 1fr' : '1fr 1fr 1fr 1.6fr'}; border-bottom: 2px solid var(--color-divider);">
         ${stat('Today', t)}${stat('7-day avg', a7)}${stat('28-day avg', a28)}
-        <div style="padding: 20px 24px; border-left: 1px solid var(--color-divider); display: flex; flex-direction: column; justify-content: center; gap: 4px;">
+        <div style="padding: ${statPad}; ${d.phone ? 'grid-column: 1 / -1; border-top: 1px solid var(--color-divider);' : 'border-left: 1px solid var(--color-divider);'} display: flex; flex-direction: column; justify-content: center; gap: 4px;">
           <div class="kicker kicker-accent">The 85 rule</div>
           <div style="font-size: 13px; line-height: 1.45; max-width: 420px; text-wrap: pretty;">Keep every op at 85 or better. If one slips under, make it easier or remove it. Focus on the wins.</div>
         </div>
       </div>
 
-      <div style="display: flex; align-items: center; gap: 20px; padding: 12px 24px; border-bottom: 1px solid var(--color-divider); flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: ${d.phone ? 12 : 20}px; padding: 12px ${d.padX}px; border-bottom: 1px solid var(--color-divider); flex-wrap: wrap;">
         <div style="display: inline-flex; border: 1px solid var(--color-divider);">
           ${(['r1', 'r7', 'r28'] as Win[]).map((w) => html`
             <button data-act="win" data-win="${w}" style="all: unset; box-sizing: border-box; padding: 8px 14px; font: 600 12px var(--font-heading); letter-spacing: 0.05em; cursor: pointer; border-right: 1px solid var(--color-divider); background: ${w === S.win ? 'var(--color-text)' : 'transparent'}; color: ${w === S.win ? 'var(--color-bg)' : 'var(--color-text)'};">${w === 'r1' ? 'TODAY' : w === 'r7' ? 'ROLL 7' : 'ROLL 28'}</button>`)}
@@ -96,7 +102,7 @@ function view(): Html {
           <span style="display: inline-flex; align-items: center; gap: 6px;" title="Change — not done: make it easier or remove it"><span class="sq sq-12 st-C"></span>C CHANGE</span>
           <span style="display: inline-flex; align-items: center; gap: 6px;" title="Bye — not required today"><span class="sq sq-12 st-B"></span>B BYE</span>
         </div>
-        <div style="margin-left: auto; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-neutral-600);">Click to cycle · Drag to paint a run</div>
+        ${when(!d.phone, () => html`<div style="margin-left: auto; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-neutral-600);">Click to cycle · Drag to paint a run</div>`)}
       </div>
 
       ${when(S.error, () => html`<div class="error" style="padding: 8px 24px;">${S.error}</div>`)}
@@ -109,7 +115,7 @@ function view(): Html {
           <button class="btn btn-primary" style="margin-top: 8px;" data-act="open-add">+ Add op</button>
         </div>`)}
 
-      ${when(ops.length > 0, () => gridView(ops, gridCols, a7, a28))}
+      ${when(ops.length > 0, () => gridView(ops, gridCols, a7, a28, d))}
       ${when(S.menu, () => menuView())}
       ${when(S.arch, () => archView())}
       ${when(S.del, () => delView())}
@@ -118,29 +124,34 @@ function view(): Html {
     </div>`
 }
 
-function gridView(ops: Op[], gridCols: string, a7: number | null, a28: number | null): Html {
+/** Day and Score pin to the left edge while the ops scroll (M2); the pinned cells need the row's own opaque background. */
+const pinDay = (bg: string) => `position: sticky; left: 0; z-index: 2; background: ${bg};`
+const pinScore = (bg: string, d: Dims) => `position: sticky; left: ${d.dayW}px; z-index: 2; background: ${bg}; box-shadow: 1px 0 0 var(--color-divider);`
+
+function gridView(ops: Op[], gridCols: string, a7: number | null, a28: number | null, d: Dims): Html {
   const avgRow = (lbl: string, len: number, total: number | null, rule: string, top: number) => html`
-    <div style="display: grid; grid-template-columns: ${gridCols}; align-items: stretch; height: ${AVGH}px; background: var(--color-surface); border-bottom: ${rule}; position: sticky; top: ${top}px; z-index: 4;">
-      <div style="display: flex; align-items: center; padding-left: 10px; font: 600 12px var(--font-heading); letter-spacing: 0.03em;">${lbl}</div>
-      <div class="tone-${tone(total)}" style="display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; font: 800 14px var(--font-heading);">${formatScore(total)}</div>
+    <div style="display: grid; grid-template-columns: ${gridCols}; width: max-content; min-width: 100%; align-items: stretch; height: ${AVGH}px; background: var(--color-surface); border-bottom: ${rule}; position: sticky; top: ${top}px; z-index: 4;">
+      <div style="display: flex; align-items: center; padding-left: 10px; font: 600 12px var(--font-heading); letter-spacing: 0.03em; ${pinDay('var(--color-surface)')}">${lbl}</div>
+      <div class="tone-${tone(total)}" style="display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; font: 800 14px var(--font-heading); ${pinScore('var(--color-surface)', d)}">${formatScore(total)}</div>
       ${ops.map((op) => { const v = windowReady(len, S.today, start()) ? opAverage(op, S.data.entries, len, S.today, start()) : null; return html`
         <div class="tone-${tone(v)}" style="display: flex; align-items: center; justify-content: center; border-left: 1px solid var(--grid-line); font: 800 13px var(--font-heading);">${formatScore(v)}</div>` })}
     </div>`
 
   return html`
-    <div style="flex: 1; min-height: 0; overflow: auto; padding: 0 24px 32px;" data-scroll="grid">
-      <div style="display: grid; grid-template-columns: ${gridCols}; position: sticky; top: 0; z-index: 5; background: var(--color-bg); border-bottom: 2px solid var(--color-divider); align-items: end;">
-        <div class="kicker" style="padding: 8px 12px 10px 10px; letter-spacing: 0.1em;">Day</div>
-        <div class="kicker" style="padding: 8px 12px 10px 0; letter-spacing: 0.1em; text-align: right;">Score</div>
+    <div style="flex: 1; min-height: 0; overflow: auto; padding: 0 ${d.padX}px 32px; scroll-snap-type: x proximity; scroll-padding-left: ${d.dayW + d.scoreW}px;" data-scroll="grid">
+      <div style="display: grid; grid-template-columns: ${gridCols}; width: max-content; min-width: 100%; position: sticky; top: 0; z-index: 5; background: var(--color-bg); border-bottom: 2px solid var(--color-divider); align-items: end;">
+        <div class="kicker" style="padding: 8px 12px 10px 10px; letter-spacing: 0.1em; align-self: stretch; display: flex; align-items: flex-end; ${pinDay('var(--color-bg)')}">Day</div>
+        <div class="kicker" style="padding: 8px 12px 10px 0; letter-spacing: 0.1em; align-self: stretch; display: flex; align-items: flex-end; justify-content: flex-end; ${pinScore('var(--color-bg)', d)}">Score</div>
         ${ops.map((op) => html`
-          <button data-act="op-menu" data-id="${op.id}" title="Edit this op${op.note ? ' · ' + op.note : ''}${archivesInFuture(op, S.today) ? ' · archives ' + label(archivesInFuture(op, S.today)!) : ''}" style="all: unset; box-sizing: border-box; height: 130px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 8px; padding: 8px 0 10px; cursor: pointer; border-left: 1px solid var(--grid-line-strong);">
+          <button data-act="op-menu" data-id="${op.id}" title="Edit this op${op.note ? ' · ' + op.note : ''}${archivesInFuture(op, S.today) ? ' · archives ' + label(archivesInFuture(op, S.today)!) : ''}" style="all: unset; box-sizing: border-box; height: 130px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 8px; padding: 8px 0 10px; cursor: pointer; scroll-snap-align: start; border-left: 1px solid var(--grid-line-strong);">
             <span style="writing-mode: vertical-rl; transform: rotate(180deg); font: 600 12px var(--font-heading); letter-spacing: 0.02em; white-space: nowrap; max-height: 86px; overflow: hidden;">${op.name}</span>
             <span class="sq sq-8" style="background: ${op.colour};"></span>
           </button>`)}
+        <button class="ghost-col" data-act="open-add" title="Add an op">+</button>
       </div>
       ${avgRow('7-day avg', 7, a7, '1px solid var(--row-line)', HDR)}
       ${avgRow('28-day avg', 28, a28, '2px solid var(--color-divider)', HDR + AVGH + 1)}
-      ${visibleDates().map((iso) => rowView(iso, ops, gridCols))}
+      ${visibleDates().map((iso) => rowView(iso, ops, gridCols, d))}
       ${when(archivedNow().length, () => html`
         <div style="display: flex; align-items: center; gap: 12px; padding: 14px 0; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-neutral-600); flex-wrap: wrap;">
           Archived:
@@ -149,23 +160,24 @@ function gridView(ops: Op[], gridCols: string, a7: number | null, a28: number | 
     </div>`
 }
 
-function rowView(iso: IsoDate, ops: Op[], gridCols: string): Html {
+function rowView(iso: IsoDate, ops: Op[], gridCols: string, d: Dims): Html {
   const isToday = iso === S.today, future = iso > S.today, wknd = isWeekend(iso)
   const sc = future ? null : dailyScore(S.data.ops, S.data.entries, iso, start())
+  const bg = isToday ? 'var(--tint-today)' : wknd ? 'var(--color-surface)' : 'var(--color-bg)'
   return html`
-    <div style="display: grid; grid-template-columns: ${gridCols}; align-items: stretch; height: 36px; background: ${isToday ? 'var(--tint-today)' : wknd ? 'var(--color-surface)' : 'transparent'}; box-shadow: ${isToday ? 'inset 3px 0 0 var(--color-accent)' : 'none'}; opacity: ${future ? '0.55' : '1'}; border-bottom: 1px solid var(--row-line);">
-      <div style="display: flex; align-items: center; gap: 8px; padding: 0 12px 0 10px; font-size: 12px;">
-        <span style="width: 34px; font-weight: 800; font-family: var(--font-heading); color: ${isToday ? 'var(--color-accent)' : wknd ? 'var(--color-neutral-500)' : 'var(--color-text)'};">${DOW[dayOfWeek(iso)]}</span>
+    <div style="display: grid; grid-template-columns: ${gridCols}; width: max-content; min-width: 100%; align-items: stretch; height: ${d.rowH}px; background: ${bg}; box-shadow: ${isToday ? 'inset 3px 0 0 var(--color-accent)' : 'none'}; opacity: ${future ? '0.55' : '1'}; border-bottom: 1px solid var(--row-line);">
+      <div style="display: flex; align-items: center; gap: 8px; padding: 0 12px 0 10px; font-size: 12px; overflow: hidden; white-space: nowrap; ${pinDay(bg)}">
+        <span style="width: 34px; flex: none; font-weight: 800; font-family: var(--font-heading); color: ${isToday ? 'var(--color-accent)' : wknd ? 'var(--color-neutral-500)' : 'var(--color-text)'};">${DOW[dayOfWeek(iso)]}</span>
         <span style="color: var(--color-neutral-700);">${label(iso)}</span>
         <span style="font: 800 9px var(--font-heading); letter-spacing: 0.08em; color: var(--color-accent);">${isToday ? 'TODAY' : future ? 'PLAN' : ''}</span>
       </div>
-      <div class="tone-${tone(sc)}" style="display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; font: 800 14px var(--font-heading);">${future ? '' : formatScore(sc)}</div>
+      <div class="tone-${tone(sc)}" style="display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; font: 800 14px var(--font-heading); ${pinScore(bg, d)}">${future ? '' : formatScore(sc)}</div>
       ${ops.map((op) => {
         const active = isActiveOn(op, iso, start())
         const cur = active ? S.data.entries[iso]?.[op.id] : undefined
         const title = `${op.name}${op.note ? ` (${op.note})` : ''} · ${label(iso)}${!active ? ' — not active this day' : cur ? ' — ' + STATE_NAME[cur] : future ? ' — click to plan a Bye' : ' — untracked'}`
         return html`
-          <div style="padding: 3px; border-left: 1px solid var(--grid-line);">
+          <div style="padding: 3px; border-left: 1px solid var(--grid-line); scroll-snap-align: start;">
             <button data-act="cell" data-iso="${iso}" data-id="${op.id}" data-active="${active ? '1' : ''}" data-future="${future ? '1' : ''}" title="${title}" class="${cur ? 'st-' + cur : ''}" style="all: unset; box-sizing: border-box; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font: 800 12px var(--font-heading); cursor: ${active ? 'pointer' : 'default'}; user-select: none; ${cur ? `background: var(--st-${cur === 'W' ? 'win' : cur === 'C' ? 'change' : 'bye'}); color: var(--st-${cur === 'W' ? 'win' : cur === 'C' ? 'change' : 'bye'}-fg);` : `color: ${active ? 'var(--color-text)' : 'var(--color-neutral-500)'}; box-shadow: ${active ? 'inset 0 0 0 1px color-mix(in srgb, var(--color-text) 15%, transparent)' : 'none'};`} opacity: ${active ? '1' : '0.4'};">${active ? (cur ?? '') : '·'}</button>
           </div>`
       })}
@@ -332,7 +344,7 @@ delegate(root, 'click', {
   account: () => { S.account = !S.account; render() },
   'account-close': () => { S.account = false; render() },
   logout: () => void signOut().then(() => location.replace('./index.html')),
-  win: (el) => { S.win = el.dataset.win as Win; render(); scrollToToday() },
+  win: (el) => { S.win = el.dataset.win as Win; try { localStorage.setItem(WIN_KEY, S.win) } catch { /* private mode */ } render(); scrollToToday() },
   'open-add': () => { S.add = { name: '', note: '', colour: SWATCHES[1]! }; S.account = false; render() },
   'close-add': () => { S.add = null; render() },
   'colour-add': (el) => { readAddForm(); S.add!.colour = el.dataset.colour!; render() },
@@ -433,6 +445,7 @@ window.addEventListener('mouseup', () => { paint = null })
 
 // Midnight: when the local date changes, re-render (new Today row, windows shift).
 setInterval(() => { const t = todayIso(); if (t !== S.today) { S.today = t; render(); scrollToToday() } }, 30_000)
+phoneMq.addEventListener('change', () => { if (S) render() })
 
 // ---------------------------------------------------------------- boot
 
@@ -442,7 +455,9 @@ void (async () => {
   const session = await requireSession()
   const profile = await ensureProfile(session)
   const data = await loadOwn(profile.id)
-  S = { profile, email: session.user.email ?? '', data, win: 'r7', today: todayIso(), account: false, menu: null, add: null, arch: null, del: null, share: null, error: null }
+  let win: Win = 'r7'
+  try { const w = localStorage.getItem(WIN_KEY); if (w === 'r1' || w === 'r7' || w === 'r28') win = w } catch { /* private mode */ }
+  S = { profile, email: session.user.email ?? '', data, win, today: todayIso(), account: false, menu: null, add: null, arch: null, del: null, share: null, error: null }
   render()
   scrollToToday()
   void repairRecent(profile.id, data, profile.startDate).catch((e) => { S.error = String(e?.message ?? e); render() })

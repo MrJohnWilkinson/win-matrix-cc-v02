@@ -21,6 +21,11 @@ body[data-theme="dark"] {
 }
 sc-for, sc-if { display: contents; }
 a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
+@media (max-width: 640px) {
+  [data-login-grid] { grid-template-columns: 1fr !important; }
+  [data-login-main] { padding: 32px 20px !important; border-right: none !important; border-bottom: 2px solid var(--color-divider) !important; }
+  [data-login-side] { padding: 24px 20px !important; }
+}
 </style>
 </helmet>
 <div style="min-height: 100vh; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); display: flex; flex-direction: column;">
@@ -31,8 +36,8 @@ a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
     </div>
     <button class="btn btn-secondary" style="margin-left: auto;" onClick="{{toggleTheme}}">{{themeLabel}}</button>
   </div>
-  <div style="flex: 1; display: grid; grid-template-columns: minmax(360px, 560px) 1fr;">
-    <div style="padding: 56px 48px; border-right: 2px solid var(--color-divider); display: flex; flex-direction: column; gap: 24px;">
+  <div style="flex: 1; display: grid; grid-template-columns: minmax(360px, 560px) 1fr;" data-login-grid="true">
+    <div style="padding: 56px 48px; border-right: 2px solid var(--color-divider); display: flex; flex-direction: column; gap: 24px;" data-login-main="true">
       <div>
         <div style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent); font-weight: 800;">Sign in</div>
         <h1 style="margin: 6px 0 0; font: 800 40px var(--font-heading); letter-spacing: -0.02em;">Win Matrix</h1>
@@ -63,7 +68,7 @@ a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
         </div>
       </sc-if>
     </div>
-    <div style="padding: 56px 48px; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; background: var(--color-surface);">
+    <div style="padding: 56px 48px; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; background: var(--color-surface);" data-login-side="true">
       <div style="display: flex; gap: 2px;">
         <span style="width: 40px; height: 40px; background: #2fb344; display: inline-flex; align-items: center; justify-content: center; font: 800 15px var(--font-heading); color: #0c2a12;">W</span>
         <span style="width: 40px; height: 40px; background: #f59f00; display: inline-flex; align-items: center; justify-content: center; font: 800 15px var(--font-heading); color: #231803;">C</span>

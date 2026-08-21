@@ -28,6 +28,14 @@ export function arrange(n: number, featured: boolean): Arrangement {
   return { cols: `repeat(${cols}, 1fr)`, rows: `repeat(${Math.ceil(n / cols)}, 1fr)`, spans: Array<string>(n).fill('auto'), sizes: Array<SizeClass>(n).fill(size) }
 }
 
+/** Phone (M8): tiles stack one per row, at least 170px tall, and the page scrolls. */
+export function arrangePhone(n: number, featured: boolean): Arrangement {
+  if (n === 0) return { cols: '1fr', rows: '1fr', spans: [], sizes: [] }
+  const sizes = Array<SizeClass>(n).fill(n <= 2 ? 'md' : 'sm')
+  if (featured) sizes[0] = n <= 3 ? 'lg' : 'md'
+  return { cols: '1fr', rows: `repeat(${n}, minmax(170px, 1fr))`, spans: Array<string>(n).fill('auto'), sizes }
+}
+
 /** Preview numeral size per tile, from the design's composer preview. */
 export function previewNumeral(n: number, featured: boolean, index: number): number {
   if (featured && n > 1) {

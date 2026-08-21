@@ -26,7 +26,7 @@ a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
 @keyframes livepulse { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
 </style>
 </helmet>
-<div style="height: 100vh; background: var(--color-divider); border: 2px solid var(--color-divider); box-sizing: border-box; display: grid; gap: 2px; grid-template-columns: {{gcols}}; grid-template-rows: {{grows}}; font-family: var(--font-body); cursor: default; user-select: none;">
+<div style="min-height: 100vh; height: {{dispH}}; overflow-y: {{dispOv}}; background: var(--color-divider); border: 2px solid var(--color-divider); box-sizing: border-box; display: grid; gap: 2px; grid-template-columns: {{gcols}}; grid-template-rows: {{grows}}; font-family: var(--font-body); cursor: default; user-select: none;">
   <sc-for list="{{tiles}}" as="t" hint-placeholder-count="3">
     <div style="grid-column: {{t.span}}; background: var(--color-bg); color: var(--color-text); padding: {{t.pad}}px; display: flex; flex-direction: column; overflow: hidden; outline: {{t.ring}}; outline-offset: -3px;">
       <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
@@ -183,6 +183,7 @@ class Component extends DCLogic {
       this._ctlT = setTimeout(() => this.setState({ ctl: false }), 3500);
     };
     window.addEventListener('mousemove', this._mv);
+    window.addEventListener('touchstart', this._mv);
     this._key = e => { if (e.key === '+' || e.key === '=') this.bumpScale(0.1); else if (e.key === '-') this.bumpScale(-0.1); };
     window.addEventListener('keydown', this._key);
     // PROTOTYPE SEAM: simulated live updates. Production: Supabase realtime subscription on shared boards.
@@ -207,7 +208,7 @@ class Component extends DCLogic {
       if (str !== this._cfgStr) { this._cfgStr = str; this.setState({ cfg }); } else this.forceUpdate();
     }, 2500);
   }
-  componentWillUnmount() { clearInterval(this._sim); clearInterval(this._poll); clearTimeout(this._ctlT); window.removeEventListener('resize', this._rs); window.removeEventListener('mousemove', this._mv); window.removeEventListener('keydown', this._key); }
+  componentWillUnmount() { clearInterval(this._sim); clearInterval(this._poll); clearTimeout(this._ctlT); window.removeEventListener('resize', this._rs); window.removeEventListener('mousemove', this._mv); window.removeEventListener('touchstart', this._mv); window.removeEventListener('keydown', this._key); }
   bumpScale(d) { this.setScale(this.state.scale + d); }
   setScale(v) { const sc = Math.round(Math.min(2.2, Math.max(0.6, v)) * 10) / 10; this.setState({ scale: sc }); try { localStorage.setItem('wm-display-scale', String(sc)); } catch (e) {} }
   col(v) { return v >= 85 ? 'var(--score-good)' : 'var(--score-bad)'; }
@@ -216,7 +217,9 @@ class Component extends DCLogic {
     const mkCell = v => ST[v] ? { bg: ST[v].bg, fg: ST[v].fg, edge: 'none' } : { bg: 'transparent', fg: 'var(--color-text)', edge: 'inset 0 0 0 1px color-mix(in srgb, var(--color-text) 25%, transparent)' };
     const vh = typeof window !== 'undefined' ? window.innerHeight : 1080;
     const vw = typeof window !== 'undefined' ? window.innerWidth : 1920;
-    const f = Math.max(0.35, Math.min(3, Math.min(vh / 1080, vw / 1920) * (this.props.textScale ?? 1) * this.state.scale));
+    const phone = vw <= 640;
+    const base = phone ? Math.max(0.6, Math.min(1.1, vw / 430)) : Math.min(vh / 1080, vw / 1920);
+    const f = Math.max(0.35, Math.min(3, base * (this.props.textScale ?? 1) * this.state.scale));
     const SCRAW = {
       xl: { num: 250, kick: 18, label: 22, avg: 44, cell: 20, dow: 13, sq: 64, mk: 40, op: 21, pad: 48, gap: 20 },
       lg: { num: 160, kick: 15, label: 18, avg: 32, cell: 16, dow: 11, sq: 52, mk: 30, op: 17, pad: 36, gap: 14 },
@@ -248,6 +251,13 @@ class Component extends DCLogic {
       spans = Array(n).fill('auto');
       const cls = cols === 1 ? 'xl' : cols === 2 ? 'lg' : cols === 3 ? 'md' : 'sm';
       classes = Array(n).fill(cls);
+    }
+    if (phone && n > 0) {
+      gcols = '1fr';
+      grows = 'repeat(' + n + ', minmax(170px, 1fr))';
+      spans = Array(n).fill('auto');
+      classes = Array(n).fill(n <= 2 ? 'md' : 'sm');
+      if (featured) classes[0] = n <= 3 ? 'lg' : 'md';
     }
     const tiles = shown.map((c, i) => {
       const id = c.id, p = this.person(id), s = SC[classes[i]];
@@ -284,6 +294,7 @@ class Component extends DCLogic {
     });
     return {
       gcols, grows, tiles, empty: n === 0, false: false,
+      dispH: phone ? 'auto' : '100vh', dispOv: phone ? 'auto' : 'hidden',
       ctlOpen: this.state.ctl,
       scalePct: Math.round(this.state.scale * 100) + '%',
       scaleUp: () => this.bumpScale(0.1),

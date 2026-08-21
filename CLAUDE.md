@@ -29,4 +29,6 @@ No UI framework, no router, no state library, no PWA, no IndexedDB, no monorepo 
 - One invite link per owner, always joining at Summary (S3/S5); `share_links` has no depth. Reset deletes and re-mints; grants are untouched.
 - Scores: `null` means "no score" (window not full, no active ops). Render `null` as a dash. Never coerce to 0 for display.
 - `daily_scores` is derived. In the app only `recomputeRange` in `src/data/store.ts` writes it; `scripts/seed.ts` writes it from the same engine (`dailyScoresForRange`). `src/data/store.test.ts` proves stored rows equal engine output.
+- Per-device state stays in localStorage: `wm-theme`, `wm-display-scale`, `wm-window` (M4). Everything else lives in Supabase.
+- Phone breakpoint is 640px everywhere (one `matchMedia` in the matrix, one media query in `theme.css`, `innerWidth` on the display). Ops stay columns on phone; no transpose (M2).
 - Timestamps in docs use `YYYY-MM-DD_HHmm`.

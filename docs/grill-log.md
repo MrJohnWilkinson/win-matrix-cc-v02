@@ -168,3 +168,13 @@ Continues numbering from the Claude Design sessions (Q1-Q15 in decisions.md, Q16
 - `scripts/e2e-sharing.ts` (25 checks against the live project, all passing): Off and Pause vanish grants, scores and ops for the viewer; the owner's own display keeps their own board while paused; public page at summary/full/off/paused; anon and authenticated cannot call `effective_depth`, `viewer_depth`, `claim_share` (anon) or `board_json`; re-claim keeps the owner's depth; claim while Off returns null; reset kills the old token and keeps existing grants. Seed updated (Rob -> Kate `off`, Mim public page on at Summary, token `seed-mim-public-000001`).
 - `npm run check` green (35 tests, typecheck, build). `npm run types` now runs `npx supabase` (the bare binary is not on PATH). Browser pass NOT done this session (no browser tool available); the dialog is built from the same html-template and data-act patterns as the other dialogs, so the first browser look is John's.
 - Not built: mode filters on other people's tiles (design Q30), cheers/reactions (D10), phone layout (Q10).
+
+## 2026-08-22_0133 - Mobile pass M1-M8 built from the 0128 bundle
+
+- Bundle `2026-08-22_0128_ Scoreboard sharing controls - cc.zip`: only `Win Matrix.dc.html`, `Login.dc.html`, `Scoreboard Display.dc.html`, `decisions.md` (Mobile pass M1-M8, Q10 amended) and `PROJECT-RECORD.md` changed. Brief, design grill log, CLAUDE.md/AGENTS.md, Scoreboard and styles.css identical. Copies refreshed.
+- Matrix (M2/M3/M7): rows, header and average rows are `width: max-content; min-width: 100%`; Day pins at left 0 and Score at left `dayW` with the row's own opaque background (weekday rows moved from transparent to `var(--color-bg)` so pinned cells cover scrolled content); `scroll-snap-type: x proximity` on the scroll box with `scroll-padding-left: dayW + scoreW`, `scroll-snap-align: start` on op headers and cells. Phone dims: day 100, score 48, col 44, row 44, pad 12; stats band 3-across with the 85 rule spanning below; paint hint hidden. One `matchMedia('(max-width: 640px)')`; a change re-renders.
+- M4: `wm-window` in localStorage; Roll 7 default.
+- M5: Wrap variant only (the design default). The Hamburger variant is not built - it sits behind a prototype prop and no journey fails without it (R6).
+- M6: "+ Add op" removed from the nav; a dashed ghost "+" column (`.ghost-col`) follows the last op header. The empty-state CTA stays.
+- M8: Login stacks under 640px via `data-login-*` hooks and one media query; display stacks tiles one per row (`arrangePhone` in `src/ui/layout.ts`, min 170px, page scrolls), type scales from `innerWidth / 430`, `touchstart` reveals the controls.
+- `npm run check` green (35 tests). No browser pass this session; first phone look is John's.

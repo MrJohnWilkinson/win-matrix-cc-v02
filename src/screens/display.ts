@@ -1,11 +1,14 @@
 // Wall display (Q34): pure glass. Opens by token (`?key=`), no sign-in, no controls until the mouse
-// moves. The same page is the public page (S12) when opened with `?p=`: one board, no composer links. Tile content centres at every board count (Q27). Swiss modular grid from src/ui/layout; numbers from src/domain/board. Anonymous, so no
-// private realtime channel: a 10s poll of display_snapshot keeps it current. Visuals follow docs/design/Scoreboard Display.dc.html.
+// moves (or a tap, on phone). The same page is the public page (S12) when opened with `?p=`: one board,
+// no composer links. Tile content centres at every board count (Q27); on a phone (M8) tiles stack one
+// per row and the page scrolls. Swiss modular grid from src/ui/layout; numbers from src/domain/board.
+// Anonymous, so no private realtime channel: a 10s poll of the snapshot RPC keeps it current.
+// Visuals follow docs/design/Scoreboard Display.dc.html.
 
 import '../theme.css'
 import { delegate, html, renderInto, when, type Html } from '../ui/render'
 import { applyTheme, themeLabel, toggleTheme } from '../ui/theme'
-import { arrange, type SizeClass } from '../ui/layout'
+import { arrange, arrangePhone, type SizeClass } from '../ui/layout'
 import { fetchDisplaySnapshot, fetchPublicSnapshot, type DisplaySnapshot } from '../data/display'
 import type { BoardItem, EntryState, IsoDate } from '../domain/model'
 import { todayIso } from '../domain/dates'
@@ -59,13 +62,16 @@ function view(): Html {
   const list = shown()
   const n = list.length
   const featured = n > 0 && list[0]!.item.featured
-  const arr = arrange(n, featured)
-  const f = Math.max(0.35, Math.min(3, Math.min(window.innerHeight / 1080, window.innerWidth / 1920) * S.scale))
+  const phone = window.innerWidth <= 640
+  const arr = phone ? arrangePhone(n, featured) : arrange(n, featured)
+  // Wall type scales from the 1920x1080 design; a phone scales from a 430px-wide design instead (M8).
+  const base = phone ? Math.max(0.6, Math.min(1.1, window.innerWidth / 430)) : Math.min(window.innerHeight / 1080, window.innerWidth / 1920)
+  const f = Math.max(0.35, Math.min(3, base * S.scale))
   const sz = (cls: SizeClass, k: string) => Math.max(8, Math.round(SIZES[cls][k]! * f))
   const now = Date.now()
 
   return html`
-    <div style="height: 100vh; background: var(--color-divider); border: 2px solid var(--color-divider); box-sizing: border-box; display: grid; gap: 2px; grid-template-columns: ${arr.cols}; grid-template-rows: ${arr.rows}; cursor: ${S.ctl ? 'default' : 'none'}; user-select: none;">
+    <div style="min-height: 100vh; height: ${phone ? 'auto' : '100vh'}; overflow-y: ${phone ? 'auto' : 'hidden'}; background: var(--color-divider); border: 2px solid var(--color-divider); box-sizing: border-box; display: grid; gap: 2px; grid-template-columns: ${arr.cols}; grid-template-rows: ${arr.rows}; cursor: ${S.ctl ? 'default' : 'none'}; user-select: none;">
       ${list.map(({ item, board }, i) => {
         const cls = arr.sizes[i]!, s = (k: string) => sz(cls, k)
         const isMe = board.ownerId === S.snap!.owner.id
@@ -156,11 +162,13 @@ delegate(root, 'click', {
   theme: () => { toggleTheme(); render() },
 })
 
-window.addEventListener('mousemove', () => {
+function revealControls(): void {
   if (!S.ctl) { S.ctl = true; render() }
   window.clearTimeout(ctlTimer)
   ctlTimer = window.setTimeout(() => { S.ctl = false; render() }, 3500)
-})
+}
+window.addEventListener('mousemove', revealControls)
+window.addEventListener('touchstart', revealControls, { passive: true })
 window.addEventListener('keydown', (e) => { if (e.key === '+' || e.key === '=') setScale(S.scale + 0.1); else if (e.key === '-') setScale(S.scale - 0.1) })
 window.addEventListener('resize', render)
 

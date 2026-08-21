@@ -33,7 +33,7 @@ The original grill questions were lost with the interrupted chat; these are infe
 - Q7/O1: per-op note field in op menu (DC6 day-one).
 - Q8/O1: share grants list/revoke deferred at the time; SUPERSEDED by the sharing-controls session below - now built.
 - Q9: NOT a prototype — fully usable. All own data persists locally (ops, entries, user, config, theme). Backend = Supabase, set up before coding; sample sharers stand in visually until then.
-- Q10/O1: desktop + wall display; phone deferred.
+- Q10/O1: desktop + wall display. AMENDED 2026-08-22: phone layout built - see Mobile pass below. Composer stays desktop-only.
 - Q11/O1: sample scores move both ways realistically; live flash kept.
 - Q12/O1: composer print copy dropped.
 - Q14/O1: Login page in scope; nav shows signed-in name + logout on every page. AMENDED: auth is email + password, not magic link (build grill Q30 = a, deviation C1).
@@ -64,8 +64,19 @@ Model: one standing invite link + People panel in the Share dialog on the matrix
 - S11/O1: reset link needs no confirmation (low stakes per S3).
 - S12/O2: public no-login page = pinned first row of the People list, same OFF/SUMMARY/FULL control, off by default, its own URL (independent of the invite link), gated by Pause-all.
 
+## Mobile pass (grill session, 2026-08-22)
+
+- M1: phone journeys = daily entry, adding ops from an invite link, read-only scoreboard glance. Composer and op management stay desktop.
+- M2: the matrix keeps ops-as-columns on phone - NO transpose, same mental model everywhere. Day + Score columns pin (position: sticky, left offsets); the ops area scrolls horizontally.
+- M3: CSS scroll-snap (x proximity) settles flicks on column edges; no paging, no dots, no JS.
+- M4: no custom Roll-N window; the picked window persists per device (wm-window in localStorage); Roll 7 default everywhere.
+- M5: nav wraps to two rows on phone (Wrap = default). A Hamburger variant exists behind the mobileNav prop: one-row nav, theme + share in a panel.
+- M6: + Add op moved OUT of the nav into the grid on all screens: a ghost dashed "+" column after the last op header. Empty-state CTA kept for new users.
+- M7: phone sizing - 44px cells/rows (min tap target), day col 100px, score 48px; stats band 3-across with the 85-rule spanning full-width below; drag-to-paint hint hidden on phone.
+- M8: Login stacks single-column under 640px. Display stacks tiles one per row (min 170px, page scrolls), type scales from phone width (vw/430) instead of the 1920 wall formula, and tap reveals the controls. Rows/avg/today grid backgrounds sized width: max-content so tints run the full scroll width.
+
 ## Storage keys
-`wm-theme`, `wm-user` {name,email,start}, `wm-ops`, `wm-entries`, `wm-sharing` {paused,linkId,publicId,publicDepth,grants}, `wm-board-config`, `wm-display-scale`.
+`wm-theme`, `wm-user` {name,email,start}, `wm-ops`, `wm-entries`, `wm-sharing` {paused,linkId,publicId,publicDepth,grants}, `wm-board-config`, `wm-display-scale`, `wm-window` (per-device window choice).
 
 ## Screens
 Login.dc.html · Win Matrix.dc.html · Scoreboard.dc.html · Scoreboard Display.dc.html

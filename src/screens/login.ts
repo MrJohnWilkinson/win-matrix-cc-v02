@@ -21,8 +21,8 @@ function view(s: State) {
         <div class="nav-brand"><span class="sq sq-14 sq-accent"></span>WIN MATRIX</div>
         <button class="btn btn-secondary" style="margin-left: auto;" data-act="theme">${themeLabel()}</button>
       </div>
-      <div style="flex: 1; display: grid; grid-template-columns: minmax(360px, 560px) 1fr;">
-        <div style="padding: 56px 48px; border-right: 2px solid var(--color-divider); display: flex; flex-direction: column; gap: 24px;">
+      <div data-login-grid style="flex: 1; display: grid; grid-template-columns: minmax(360px, 560px) 1fr;">
+        <div data-login-main style="padding: 56px 48px; border-right: 2px solid var(--color-divider); display: flex; flex-direction: column; gap: 24px;">
           <div>
             <div class="kicker kicker-accent" style="font-size: 11px; letter-spacing: 0.14em;">${s.userName ? 'Signed in' : s.mode === 'signin' ? 'Sign in' : 'Create account'}</div>
             <h1 style="margin: 6px 0 0; font: 800 40px var(--font-heading); letter-spacing: -0.02em;">Win Matrix</h1>
@@ -53,7 +53,7 @@ function view(s: State) {
               <button class="btn btn-ghost" data-act="logout">Log out</button>
             </div>`)}
         </div>
-        <div style="padding: 56px 48px; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; background: var(--color-surface);">
+        <div data-login-side style="padding: 56px 48px; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; background: var(--color-surface);">
           <div style="display: flex; gap: 2px;">
             <span class="st-W" style="width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; font: 800 15px var(--font-heading);">W</span>
             <span class="st-C" style="width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; font: 800 15px var(--font-heading);">C</span>
