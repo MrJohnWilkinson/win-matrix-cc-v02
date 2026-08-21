@@ -93,6 +93,22 @@ Continues numbering from the Claude Design sessions (Q1-Q15 in decisions.md, Q16
 - B1: grant the PAT access to win-matrix-cc-v02.
 - B2: flip win-matrix-cc-v02 to public.
 
+## 2026-08-21_1954 - Build progress
+
+- G1 cleared: iqpgwghkglromogsbayw and tqczsjbroclihyshzmlc both INACTIVE. A separate `win-matrix-v2-codex` project (xpagxbjjiuudkbwxhpdt) is ACTIVE - John's parallel Codex build, untouched.
+- Supabase project created: `recordbreaker-matrix-claude-2026-08-21_1852`, ref `mzwuxjxtigapyoiqcrta`, ap-southeast-2. DB password in the session scratchpad `win-matrix-db-password.env` (John to save in KeePass).
+- Local repo at `2026-08-21_1519_win matrix/win-matrix-cc-v02/`, 2 commits. `npm run check` green: 32 engine tests, typecheck, build.
+- B1/B2 still open: PAT cannot see win-matrix-cc-v02; push and Pages wait on that.
+
+## 2026-08-21_2007 - Build complete locally; browser verification done (Q35 = a)
+
+- Supabase `mzwuxjxtigapyoiqcrta`: schema + RLS + 2 RPCs pushed (2 migrations), auth config pushed (email+password, confirmations off), storage.vector disabled for free tier.
+- Seeded Mim / Rob / Kate (wm-test-*@example.com, password winmatrix-test-2026) with 60 days of history, cross-grants, a display token, and a board config.
+- Verified in Chrome against the live project: sign-in, matrix render, cell cycling, future-row byes, share dialog (reuses the link at that depth), op menu, archive-from-past-date and restore (history before the change stays counted), add op, delete op with confirm, composer with depth-gated chips, display by token with featured layout, live broadcast update (display flashed + moved within 1s), claim link as Kate (redirect to login, return, grant created, notice shown), display token minting, light theme.
+- Bugs found and fixed during verification: dialog click guard swallowed inner clicks; claim_share OUT-column name collision; full-grid boards now refetch behind a broadcast.
+- Known polish item: the owner's ops list on the display can clip a partial row at some viewport sizes (cap is by size class, not by measured height).
+- 5 commits local. B1 still open (PAT cannot see win-matrix-cc-v02), so push + Pages deploy wait on John. Then: repo variables VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY, Pages source = GitHub Actions.
+
 ## Running decision register (this session)
 
 - Q27 = b - new project `recordbreaker-matrix-claude-2026-08-21_1852`, ap-southeast-2. John pauses iqpgwghkglromogsbayw (G1, still open).
