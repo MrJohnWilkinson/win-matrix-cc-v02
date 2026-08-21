@@ -109,6 +109,14 @@ Continues numbering from the Claude Design sessions (Q1-Q15 in decisions.md, Q16
 - Known polish item: the owner's ops list on the display can clip a partial row at some viewport sizes (cap is by size class, not by measured height).
 - 5 commits local. B1 still open (PAT cannot see win-matrix-cc-v02), so push + Pages deploy wait on John. Then: repo variables VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY, Pages source = GitHub Actions.
 
+## 2026-08-21_2031 - DEPLOYED
+
+- B1/B2 cleared: John minted a scoped PAT (Contents/Variables/Workflows rw; Actions/Pages/Metadata ro; no Administration), flipped the repo public, set Pages source = GitHub Actions himself.
+- Pushed to `MrJohnWilkinson/win-matrix-cc-v02`. Repo variables VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY set. Workflow run 32472898886 succeeded.
+- Live: https://mrjohnwilkinson.github.io/win-matrix-cc-v02/ - sign-in, matrix (7 cols, Today 67), display by token all verified in Chrome on the production URL, zero console errors.
+- Test users Mim/Rob/Kate left in place for John's first look; `npm run seed -- --clean` removes them (needs the seed env from the scratchpad).
+- Follow-ups (not blocking): display ops-list partial-row clip; share-grant list/revoke (Q8 deferred); magic link via SMTP later (Q30); custom domain CNAME when wanted (Q33).
+
 ## Running decision register (this session)
 
 - Q27 = b - new project `recordbreaker-matrix-claude-2026-08-21_1852`, ap-southeast-2. John pauses iqpgwghkglromogsbayw (G1, still open).
