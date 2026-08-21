@@ -33,15 +33,11 @@
 
   /* — extensions — */
   --color-elev: #ffffff;
-  --tint-today: color-mix(in srgb, var(--color-accent) 7%, var(--color-bg));
   --score-good: #198754;
   --score-bad: #b45309;
   --st-win: #2fb344;    --st-win-fg: #0c2a12;
   --st-change: #f59f00; --st-change-fg: #231803;
   --st-bye: #17a2b8;    --st-bye-fg: #062a30;
-  --grid-line: color-mix(in srgb, var(--color-text) 6%, transparent);
-  --grid-line-strong: color-mix(in srgb, var(--color-text) 12%, transparent);
-  --row-line: color-mix(in srgb, var(--color-text) 8%, transparent);
 }
 
 body[data-theme="dark"] {
@@ -51,6 +47,14 @@ body[data-theme="dark"] {
   --color-neutral-500: #8a8683; --color-neutral-600: #a5a19d; --color-neutral-700: #c0bcb8;
   --score-good: #22c55e; --score-bad: #f59e0b;
   --shadow-lg: 0 8px 24px rgba(0,0,0,0.6);
+}
+
+/* Derived from theme colours, so declared on body (where the dark override lives), not :root. */
+body {
+  --tint-today: color-mix(in srgb, var(--color-accent) 7%, var(--color-bg));
+  --grid-line: color-mix(in srgb, var(--color-text) 6%, transparent);
+  --grid-line-strong: color-mix(in srgb, var(--color-text) 12%, transparent);
+  --row-line: color-mix(in srgb, var(--color-text) 8%, transparent);
 }
 
 /* ── Modernist base ─────────────────────────────────────────────────────── */
