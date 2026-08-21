@@ -1,13 +1,12 @@
 // Wall display (Q34): pure glass. Opens by token (`?key=`), no sign-in, no controls until the mouse
-// moves. Swiss modular grid from src/ui/layout; numbers from src/domain/board. Live via broadcast,
-// 30s poll as the fallback. Visuals follow docs/design/Scoreboard Display.dc.html.
+// moves. Swiss modular grid from src/ui/layout; numbers from src/domain/board. Anonymous, so no
+// private realtime channel: a 10s poll of display_snapshot keeps it current. Visuals follow docs/design/Scoreboard Display.dc.html.
 
 import '../theme.css'
 import { delegate, html, renderInto, when, type Html } from '../ui/render'
 import { applyTheme, themeLabel, toggleTheme } from '../ui/theme'
 import { arrange, type SizeClass } from '../ui/layout'
 import { fetchDisplaySnapshot, type DisplaySnapshot } from '../data/display'
-import { subscribeScores } from '../data/live'
 import type { BoardItem, EntryState, IsoDate } from '../domain/model'
 import { todayIso } from '../domain/dates'
 import { boardStats, inMode } from '../domain/board'
@@ -36,8 +35,6 @@ let stored = 1
 try { stored = parseFloat(localStorage.getItem(SCALE_KEY) ?? '1') || 1 } catch { /* private mode */ }
 const S: State = { snap: null, today: todayIso(), scale: Math.min(2.2, Math.max(0.6, stored)), ctl: false, flash: {}, error: null }
 let ctlTimer: number | undefined
-let unsubscribe: (() => void) | null = null
-let refetchTimer: number | undefined
 
 function shown(): { item: BoardItem; board: DisplaySnapshot['boards'][number] }[] {
   if (!S.snap) return []
@@ -168,19 +165,10 @@ window.addEventListener('resize', render)
 async function refresh(): Promise<void> {
   try {
     const snap = await fetchDisplaySnapshot(token)
+    const prev = new Map((S.snap?.boards ?? []).map((b) => [b.ownerId, JSON.stringify(b.scores)]))
+    const now = Date.now()
+    for (const b of snap.boards) if (prev.has(b.ownerId) && prev.get(b.ownerId) !== JSON.stringify(b.scores)) { S.flash[b.ownerId] = now; window.setTimeout(render, 5200) }
     S.snap = snap; S.error = null
-    const ids = snap.boards.map((b) => b.ownerId)
-    unsubscribe?.()
-    unsubscribe = subscribeScores(ids, (e) => {
-      const b = S.snap?.boards.find((x) => x.ownerId === e.ownerId)
-      if (!b) return
-      b.scores[e.day] = e.score
-      S.flash[e.ownerId] = Date.now()
-      render()
-      window.setTimeout(render, 5200) // clear the ring
-      // Full-grid boards render from ops + entries, so fetch the grid behind the score (debounced).
-      if (b.ops !== null) { window.clearTimeout(refetchTimer); refetchTimer = window.setTimeout(() => void refresh(), 600) }
-    })
   } catch (e) {
     S.error = /not found/i.test(String(e)) ? 'This display link is not valid. Open the display from the scoreboard composer.' : (e instanceof Error ? e.message : String(e))
   }
@@ -194,6 +182,6 @@ render()
 if (!token) { S.error = 'No display key. Open the display from the scoreboard composer.'; render() }
 else {
   void refresh()
-  setInterval(() => void refresh(), 30_000)                  // fallback poll: config edits, missed broadcasts
+  setInterval(() => void refresh(), 10_000)
   setInterval(() => { const t = todayIso(); if (t !== S.today) { S.today = t; render() } }, 30_000)
 }

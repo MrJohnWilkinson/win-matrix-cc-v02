@@ -200,7 +200,7 @@ void (async () => {
   subscribeScores(shared.map((b) => b.ownerId), (e) => {
     const b = S.shared.find((x) => x.ownerId === e.ownerId)
     if (!b) return
-    b.scores[e.day] = e.score
+    for (const c of e.changes) b.scores[c.day] = c.score
     render()
     // Full-grid boards compute from the grid itself; pull it again behind the broadcast (debounced).
     if (b.ops !== null) { window.clearTimeout(refetch); refetch = window.setTimeout(() => void loadSharedBoards(profile.id).then((fresh) => { S.shared = fresh; render() }), 600) }

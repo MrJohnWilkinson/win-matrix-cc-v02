@@ -3,7 +3,6 @@
 
 import { supabase } from './client'
 import type { Json } from './database.types'
-import { publishScores } from './live'
 import type { ArchivePeriod, BoardItem, DailyScores, Entries, EntryState, IsoDate, Op } from '../domain/model'
 import { addDays, todayIso } from '../domain/dates'
 import { dailyScoresForRange } from '../domain/scoring'
@@ -38,7 +37,7 @@ export async function loadOwn(ownerId: string): Promise<OwnData> {
 
 /**
  * Recompute and store daily scores for [from, to]. Pure engine output, never hand-set.
- * Returns the rows written so callers can publish them.
+ * The database broadcasts the change to live subscribers (trigger broadcast_scores).
  */
 export async function recomputeRange(ownerId: string, data: OwnData, startDate: IsoDate, from: IsoDate, to: IsoDate): Promise<DailyScores> {
   if (from < startDate) from = startDate
@@ -47,7 +46,6 @@ export async function recomputeRange(ownerId: string, data: OwnData, startDate: 
   const rows = Object.entries(scores).map(([day, score]) => ({ owner_id: ownerId, day, score: score === null ? null : Math.round(score * 1000) / 1000, updated_at: new Date().toISOString() }))
   const { error } = await supabase.from('daily_scores').upsert(rows, { onConflict: 'owner_id,day' })
   if (error) throw error
-  void publishScores(ownerId, rows.map((r) => ({ day: r.day, score: r.score })))
   return scores
 }
 
