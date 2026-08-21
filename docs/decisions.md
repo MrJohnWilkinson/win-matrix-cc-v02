@@ -40,6 +40,7 @@ The original grill questions were lost with the interrupted chat; these are infe
 - Q15/O1: display name edited in nav account menu; defaults from email.
 
 ## Fixes carried from review (A-codes)
+- C1 (build session, Q30): Login is email + password with confirmations off, not the magic link named in Q14; magic link is a later config swap. See `grill-log.md`.
 - A4: 85-rule copy — "make it easier or remove it" (CORRECTED 2026-08-21: "rather than abandoning it" was wrong advice; a change signal means make it easier, or remove it).
 - A5: colour tags non-semantic (no W-green / C-amber reuse).
 - A6: ops-panel mode control only on the user's OWN board (D7).

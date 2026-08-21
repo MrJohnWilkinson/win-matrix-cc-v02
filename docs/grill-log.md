@@ -131,3 +131,16 @@ Continues numbering from the Claude Design sessions (Q1-Q15 in decisions.md, Q16
 - Q34 = b - display token URL, `display_snapshot(token)` RPC, per-owner broadcast channel for live updates.
 - Q35 = a - full browser E2E verification of the built app; test accounts cleaned up after.
 - Q36/Q37 - repo `win-matrix-cc-v02` (public), Actions to Pages; build starts before gates clear.
+
+## 2026-08-21_2112 - Audit against the bundle and inputs (Fable session)
+
+- Fixed: `archiveFrom` inside a closed span un-archived earlier history (D9); test added.
+- Fixed: `display_snapshot` returned boards the composer had hidden; now filtered server-side.
+- Fixed: realtime channels were public. Scores now broadcast from a `daily_scores` trigger on private `scores:{ownerId}` channels gated by RLS on `realtime.messages`. Verified: owner and grant holder receive, a non-grant user and the anon key are refused.
+- Consequence: the anonymous display has no user JWT and cannot join a private channel. It polls `display_snapshot` every 10s and flashes on change. Restoring sub-second wall updates means anonymous sign-in for the display (new auth users per wall device, `claim_share` must reject anonymous users) - John's call, not taken here.
+- Fixed: Supabase default privileges gave `anon` EXECUTE on `viewer_depth` and `claim_share`; revoked. Anon can call `display_snapshot` only, verified.
+- Added: `src/data/store.test.ts`, the Q32 obligation - stored `daily_scores` rows equal engine output across 40 random grids and their mutations. 35 tests.
+- Seed password moved to `SEED_PASSWORD`; production test users recreated with a new password held in the scratchpad seed env (copy to KeePass). The value published in this log at 2026-08-21_2031 no longer works.
+- Docs: `CLAUDE.md` named a non-existent `src/data/scores.ts` as the writer; corrected. Design grill log Q16-Q26 copied to `docs/design-grill-log.md`. `docs/design/` now carries `support.js` and the original `_ds/` folder name so the screens open. C1 recorded in `decisions.md`. PROJECT-RECORD kept verbatim with a one-line pointer to what changed.
+- Numbering note: there is no F14 in this log; findings run F7-F13, F15, F16.
+- Open, not changed: DC2 says each user's own timezone, the build uses the device date (`profiles` has no timezone); the wall display makes that visible when it sits in another zone. Guardrail drift flagged, no action: `matrix.ts` carries five workflows (R3); `loadGrantsForOwner` and `ENTRY_STATES` unused (R6); `tsconfig` includes `src` only so `npm run check` never typechecks `scripts/` (R8); `.btn-primary` text is `#fff` where Modernist uses `var(--color-bg)`, and the `--color-accent-2-*` ramp was dropped.

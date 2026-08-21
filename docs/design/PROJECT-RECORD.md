@@ -1,5 +1,7 @@
 # PROJECT-RECORD
 
+Verbatim copy of the design bundle's record. Where it describes auth (magic link), Lucide icons, prototype seams, or a subscribing display, the build differs; `../grill-log.md` and `../decisions.md` (C1) are current.
+
 Win Matrix - project record for the Claude Code handoff. Updated 2026-08-21 (AEST). Current state only; superseded history lives nowhere in this bundle on purpose (Q19 = O1). Spec authority: `2026-08-21_1442_ops-matrix-app-brief.md` + `decisions.md`.
 
 ## Files

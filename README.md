@@ -37,7 +37,7 @@ npx supabase config push      # auth settings (email+password, confirmations off
 npm run types                 # regenerate src/data/database.types.ts from the live schema
 ```
 
-Seed three test users with 60 days of history (needs `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in the environment; never commit them):
+Seed three test users with 60 days of history (needs `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` and `SEED_PASSWORD` in the environment; never commit them):
 
 ```
 npm run seed                  # create
@@ -52,4 +52,4 @@ Push to `main`. `.github/workflows/deploy.yml` runs `npm run check` and publishe
 
 - Scores are computed client-side by `src/domain/scoring.ts`. The owner's client writes a derived `daily_scores` row per day through one function, `recomputeRange`; shared boards read those rows. See the grill log, Q32.
 - Sharing is by link: `scoreboard.html?claim=<token>`. A signed-in recipient claims it and a grant binds to them at the link's depth (summary or full grid). Q31.
-- The wall display opens by `display.html?key=<token>`, no sign-in. It calls one read-only RPC and listens on a broadcast channel per person shown. Q34.
+- The wall display opens by `display.html?key=<token>`, no sign-in. It calls one read-only RPC every 10s; it has no user JWT, so it cannot join the private realtime channels. Q34.

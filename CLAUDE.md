@@ -1,6 +1,6 @@
 # Win Matrix - rules for agents working in this repo
 
-Spec authority, in order: `docs/brief.md` (scoring formulas, decisions D1-D10), `docs/decisions.md` (design-session rulings Q1-Q15), `docs/grill-log.md` (build-session rulings Q27+). The design bundle under `docs/design/` is a picture of the target, never a source of logic.
+Spec authority, in order: `docs/brief.md` (scoring formulas, decisions D1-D10), `docs/decisions.md` (design-session rulings Q1-Q15 and amendments), `docs/design-grill-log.md` (design-session rulings Q16-Q26), `docs/grill-log.md` (build-session rulings Q27+). The design bundle under `docs/design/` is a picture of the target, never a source of logic.
 
 ## Shape
 - R1 - One engine. Scoring, active-span rules, and state meanings live in `src/domain/`, stay pure, and every screen reads them.
@@ -26,5 +26,5 @@ No UI framework, no router, no state library, no PWA, no IndexedDB, no monorepo 
 - Dates are plain `YYYY-MM-DD` strings in the device's local calendar (DC2). Never `Date` objects across module boundaries.
 - Entry states: `W` win, `C` change, `B` bye. Absent = untracked. Nothing else.
 - Scores: `null` means "no score" (window not full, no active ops). Render `null` as a dash. Never coerce to 0 for display.
-- `daily_scores` is derived. Only `src/data/scores.ts` writes it, only through `recomputeRange`.
+- `daily_scores` is derived. In the app only `recomputeRange` in `src/data/store.ts` writes it; `scripts/seed.ts` writes it from the same engine (`dailyScoresForRange`). `src/data/store.test.ts` proves stored rows equal engine output.
 - Timestamps in docs use `YYYY-MM-DD_HHmm`.
