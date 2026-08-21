@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-a1f4a3ef-7a51-4fe1-8cc9-9864ce640d2b/styles.css">
+<script src="_ds/modernist-a1f4a3ef-7a51-4fe1-8cc9-9864ce640d2b/_ds_bundle.js"></script>
+<style>
+body { margin: 0; overflow: hidden; --color-elev: #ffffff; --score-good: #198754; --score-bad: #b45309; }
+body[data-theme="dark"] {
+  --color-bg: #171615; --color-surface: #201e1d; --color-text: #eceae8;
+  --color-divider: #3a3735; --color-elev: #262422;
+  --color-accent-600: #f0664e; --color-accent-700: #f79c8d;
+  --color-neutral-500: #8a8683; --color-neutral-600: #a5a19d; --color-neutral-700: #c0bcb8;
+  --score-good: #22c55e; --score-bad: #f59e0b;
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.6);
+}
+button:focus-visible { outline: 2px solid var(--color-accent) !important; outline-offset: 2px; }
+sc-for, sc-if { display: contents; }
+a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
+@keyframes livepulse { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+</style>
+</helmet>
+<div style="height: 100vh; background: var(--color-divider); border: 2px solid var(--color-divider); box-sizing: border-box; display: grid; gap: 2px; grid-template-columns: {{gcols}}; grid-template-rows: {{grows}}; font-family: var(--font-body); cursor: default; user-select: none;">
+  <sc-for list="{{tiles}}" as="t" hint-placeholder-count="3">
+    <div style="grid-column: {{t.span}}; background: var(--color-bg); color: var(--color-text); padding: {{t.pad}}px; display: flex; flex-direction: column; overflow: hidden; outline: {{t.ring}}; outline-offset: -3px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="width: 10px; height: 10px; background: var(--color-accent); flex: none;"></span>
+        <span style="font: 800 {{t.s.label}}px var(--font-heading); letter-spacing: 0.14em; text-transform: uppercase;">{{t.name}}</span>
+        <span style="width: 9px; height: 9px; background: var(--color-accent); display: {{t.liveDot}}; animation: livepulse 1.2s infinite;"></span>
+      </div>
+      <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0;">
+        <div style="flex: none;">
+          <div style="font-size: {{t.s.kick}}px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-neutral-600);">Today</div>
+          <div style="font: 800 {{t.s.num}}px var(--font-heading); line-height: 0.95; letter-spacing: -0.03em; color: {{t.todayC}};">{{t.today}}</div>
+        </div>
+        <sc-if value="{{t.showMarks}}" hint-placeholder-val="{{false}}">
+          <div style="flex: none; display: flex; gap: 2px; margin-top: {{t.gap}}px;">
+            <sc-for list="{{t.marks}}" as="mk" hint-placeholder-count="8">
+              <span style="width: {{t.s.mk}}px; height: {{t.s.mk}}px; display: inline-flex; align-items: center; justify-content: center; font: 800 {{t.s.cell}}px var(--font-heading); background: {{mk.bg}}; color: {{mk.fg}}; box-shadow: {{mk.edge}};">{{mk.v}}</span>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{t.showOpsList}}" hint-placeholder-val="{{false}}">
+          <div style="flex: 0 1 auto; min-height: 0; overflow: hidden; margin-top: {{t.gap}}px;">
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 24px;">
+              <sc-for list="{{t.opsList}}" as="ol" hint-placeholder-count="4">
+                <div style="display: flex; align-items: center; gap: 8px; font-size: {{t.s.op}}px;">
+                  <span style="width: {{t.s.mk}}px; height: {{t.s.mk}}px; flex: none; display: inline-flex; align-items: center; justify-content: center; font: 800 {{t.s.cell}}px var(--font-heading); background: {{ol.bg}}; color: {{ol.fg}}; box-shadow: {{ol.edge}};">{{ol.v}}</span>
+                  <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ol.name}}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="font-size: {{t.s.kick}}px; letter-spacing: 0.08em; color: var(--color-neutral-600); margin-top: 4px;">{{t.opsMore}}</div>
+          </div>
+        </sc-if>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: {{t.gap}}px;">
+        <sc-if value="{{t.showAvgRow}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; gap: 32px; align-items: baseline;">
+            <sc-if value="{{t.show7}}" hint-placeholder-val="{{false}}">
+              <div style="display: flex; gap: 10px; align-items: baseline;"><span style="font-size: {{t.s.kick}}px; letter-spacing: 0.12em; color: var(--color-neutral-600);">7-DAY</span><span style="font: 800 {{t.s.avg}}px var(--font-heading); color: {{t.a7C}};">{{t.a7}}</span></div>
+            </sc-if>
+            <sc-if value="{{t.show28}}" hint-placeholder-val="{{false}}">
+              <div style="display: flex; gap: 10px; align-items: baseline;"><span style="font-size: {{t.s.kick}}px; letter-spacing: 0.12em; color: var(--color-neutral-600);">28-DAY</span><span style="font: 800 {{t.s.avg}}px var(--font-heading); color: {{t.a28C}};">{{t.a28}}</span></div>
+            </sc-if>
+          </div>
+        </sc-if>
+        <sc-if value="{{t.showLast7}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; gap: 2px;">
+            <sc-for list="{{t.last7}}" as="d" hint-placeholder-count="7">
+              <div style="width: {{t.s.sq}}px; padding: 5px 0; background: var(--color-surface); display: flex; flex-direction: column; align-items: center; gap: 1px;">
+                <span style="font-size: {{t.s.dow}}px; color: var(--color-neutral-500);">{{d.dow}}</span>
+                <span style="font: 800 {{t.s.cell}}px var(--font-heading); color: {{d.c}};">{{d.v}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-for>
+  <sc-if value="{{ctlOpen}}" hint-placeholder-val="{{false}}">
+    <div style="position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 60; display: flex; align-items: center; gap: 2px; background: var(--color-elev); border: 1px solid var(--color-divider); box-shadow: var(--shadow-lg); padding: 4px;">
+      <button style="all: unset; box-sizing: border-box; width: 40px; height: 36px; display: inline-flex; align-items: center; justify-content: center; font: 800 15px var(--font-heading); cursor: pointer; color: var(--color-text);" style-hover="background: color-mix(in srgb, var(--color-text) 8%, transparent);" onClick="{{scaleDown}}" title="Smaller">A−</button>
+      <span style="min-width: 58px; text-align: center; font: 600 12px var(--font-heading); letter-spacing: 0.04em; color: var(--color-neutral-600);">{{scalePct}}</span>
+      <button style="all: unset; box-sizing: border-box; width: 40px; height: 36px; display: inline-flex; align-items: center; justify-content: center; font: 800 18px var(--font-heading); cursor: pointer; color: var(--color-text);" style-hover="background: color-mix(in srgb, var(--color-text) 8%, transparent);" onClick="{{scaleUp}}" title="Bigger">A+</button>
+      <button style="all: unset; box-sizing: border-box; height: 36px; padding: 0 12px; display: inline-flex; align-items: center; font: 600 11px var(--font-heading); letter-spacing: 0.05em; cursor: pointer; color: var(--color-neutral-600); border-left: 1px solid var(--color-divider);" style-hover="background: color-mix(in srgb, var(--color-text) 8%, transparent);" onClick="{{scaleReset}}" title="Reset to 100%">RESET</button>
+      <button style="all: unset; box-sizing: border-box; height: 36px; padding: 0 12px; display: inline-flex; align-items: center; font: 600 11px var(--font-heading); letter-spacing: 0.05em; cursor: pointer; color: var(--color-neutral-600); border-left: 1px solid var(--color-divider);" style-hover="background: color-mix(in srgb, var(--color-text) 8%, transparent);" onClick="{{toggleTheme}}" title="Switch theme">{{themeLabel}}</button>
+    </div>
+    <a href="./Scoreboard.dc.html" style="position: fixed; right: 20px; bottom: 28px; z-index: 60; display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; background: var(--color-elev); border: 1px solid var(--color-divider); box-shadow: var(--shadow-lg); font: 600 11px var(--font-heading); letter-spacing: 0.06em; color: var(--color-neutral-600); text-decoration: none;" style-hover="color: var(--color-text); background: color-mix(in srgb, var(--color-text) 8%, transparent);" title="Back to the scoreboard composer"><span style="width: 8px; height: 8px; background: var(--color-accent);"></span>COMPOSE</a>
+  </sc-if>
+  <sc-if value="{{empty}}" hint-placeholder-val="{{false}}">
+    <div style="background: var(--color-bg); color: var(--color-text); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 48px; gap: 8px;">
+      <span style="width: 14px; height: 14px; background: var(--color-accent);"></span>
+      <div style="font: 800 28px var(--font-heading);">Nothing on display</div>
+      <div style="font-size: 14px; color: var(--color-neutral-600);">Compose your board in the <a href="./Scoreboard.dc.html">scoreboard composer</a>.</div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;textScale&quot;: {&quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 1, &quot;min&quot;: 0.7, &quot;max&quot;: 1.8, &quot;step&quot;: 0.05, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Display&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.PEOPLE = {
+      mim: { name: 'Mim', depth: 'summary', base: 91 },
+      rob: { name: 'Rob', depth: 'full', base: 87 },
+      kate: { name: 'Kate', depth: 'summary', base: 79 },
+      dan: { name: 'Dan', depth: 'summary', base: 94 },
+      priya: { name: 'Priya', depth: 'full', base: 83 },
+      sam: { name: 'Sam', depth: 'summary', base: 88 }
+    };
+    this.readMine();
+    const cfg = this.readCfg();
+    const drift = {};
+    Object.keys(this.PEOPLE).forEach(id => { drift[id] = 0; });
+    let th = 'dark'; try { th = localStorage.getItem('wm-theme') || 'dark'; } catch (e) {}
+    this._theme = th; this._cfgStr = JSON.stringify(cfg);
+    let sc = 1; try { sc = parseFloat(localStorage.getItem('wm-display-scale')) || 1; } catch (e) {}
+    this.state = { cfg, drift, updated: {}, scale: Math.min(2.2, Math.max(0.6, sc)), ctl: false };
+  }
+  readMine() {
+    let user = null, ops = [], entries = {};
+    try { user = JSON.parse(localStorage.getItem('wm-user')); } catch (e) {}
+    try { ops = JSON.parse(localStorage.getItem('wm-ops')) || []; } catch (e) {}
+    try { entries = JSON.parse(localStorage.getItem('wm-entries')) || {}; } catch (e) {}
+    this._user = user; this._ops = ops; this._entries = entries;
+  }
+  defaultCfg() {
+    return [
+      { id: 'me', show: true, feat: true, elems: { avg7: true, avg28: true, last7: true, ops: true }, mode: 'Both' },
+      { id: 'mim', show: true, feat: false, elems: { avg7: true, avg28: true, last7: true, ops: false } },
+      { id: 'rob', show: true, feat: false, elems: { avg7: true, avg28: true, last7: true, ops: false } },
+      { id: 'kate', show: false, feat: false, elems: { avg7: true, avg28: true, last7: true, ops: false } },
+      { id: 'dan', show: false, feat: false, elems: { avg7: true, avg28: true, last7: true, ops: false } },
+      { id: 'priya', show: false, feat: false, elems: { avg7: true, avg28: true, last7: true, ops: false } },
+      { id: 'sam', show: false, feat: false, elems: { avg7: true, avg28: true, last7: true, ops: false } }
+    ];
+  }
+  readCfg() {
+    let cfg = null;
+    try { const s = localStorage.getItem('wm-board-config'); if (s) { const arr = JSON.parse(s); if (Array.isArray(arr) && arr.length) cfg = arr; } } catch (e) {}
+    if (!cfg) cfg = this.defaultCfg();
+    return cfg;
+  }
+  person(id) {
+    if (id === 'me') return { name: this._user ? this._user.name : 'You', depth: 'own', base: 0 };
+    return this.PEOPLE[id];
+  }
+  isoOffset(n) { const d = new Date(); d.setDate(d.getDate() + n); const p = x => String(x).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); }
+  hash(s) { let h = 9; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 387420489); return ((h >>> 8) % 1000) / 1000; }
+  activeMine(o, iso) { return !(o.archivedFrom && iso >= o.archivedFrom && (!o.resumedFrom || iso < o.resumedFrom)); }
+  myDayScore(iso) {
+    const e = this._entries[iso] || {};
+    const act = this._ops.filter(o => this.activeMine(o, iso));
+    if (!act.length) return 0;
+    let w = 0, b = 0;
+    act.forEach(o => { if (e[o.id] === 'W') w++; else if (e[o.id] === 'B') b++; });
+    const den = act.length - b;
+    return den <= 0 ? 0 : Math.round(w / den * 100);
+  }
+  dayScore(id, iso) {
+    if (id === 'me') return this.myDayScore(iso);
+    const p = this.PEOPLE[id]; return Math.max(0, Math.min(100, Math.round(p.base + (this.hash(id + iso) - 0.5) * 30)));
+  }
+  todayLive(id) {
+    if (id === 'me') return this.myDayScore(this.isoOffset(0));
+    return Math.max(0, Math.min(100, this.dayScore(id, this.isoOffset(0)) + (this.state.drift[id] || 0)));
+  }
+  avg(id, len) { let s = 0; for (let i = 1; i <= len; i++) s += this.dayScore(id, this.isoOffset(-i)); return s / len; }
+  componentDidMount() {
+    document.body.dataset.theme = this._theme;
+    this._rs = () => this.forceUpdate();
+    window.addEventListener('resize', this._rs);
+    this._mv = () => {
+      if (!this.state.ctl) this.setState({ ctl: true });
+      clearTimeout(this._ctlT);
+      this._ctlT = setTimeout(() => this.setState({ ctl: false }), 3500);
+    };
+    window.addEventListener('mousemove', this._mv);
+    this._key = e => { if (e.key === '+' || e.key === '=') this.bumpScale(0.1); else if (e.key === '-') this.bumpScale(-0.1); };
+    window.addEventListener('keydown', this._key);
+    // PROTOTYPE SEAM: simulated live updates. Production: Supabase realtime subscription on shared boards.
+    this._sim = setInterval(() => {
+      const vis = this.state.cfg.filter(c => c.show && c.id !== 'me' && this.PEOPLE[c.id]);
+      if (vis.length) {
+        const c = vis[Math.floor(Math.random() * vis.length)];
+        const step = Math.floor(Math.random() * 7) - 3;
+        this.setState(s => {
+          const cur = this.dayScore(c.id, this.isoOffset(0)) + (s.drift[c.id] || 0);
+          const next = Math.max(0, Math.min(100, cur + step));
+          return { drift: { ...s.drift, [c.id]: next - this.dayScore(c.id, this.isoOffset(0)) }, updated: { ...s.updated, [c.id]: Date.now() } };
+        });
+      }
+    }, 6000);
+    // PROTOTYPE SEAM: polls localStorage for config/theme. Production: realtime subscription replaces polling.
+    this._poll = setInterval(() => {
+      this.readMine();
+      const cfg = this.readCfg(), str = JSON.stringify(cfg);
+      let th = 'dark'; try { th = localStorage.getItem('wm-theme') || 'dark'; } catch (e) {}
+      if (th !== this._theme) { this._theme = th; document.body.dataset.theme = th; }
+      if (str !== this._cfgStr) { this._cfgStr = str; this.setState({ cfg }); } else this.forceUpdate();
+    }, 2500);
+  }
+  componentWillUnmount() { clearInterval(this._sim); clearInterval(this._poll); clearTimeout(this._ctlT); window.removeEventListener('resize', this._rs); window.removeEventListener('mousemove', this._mv); window.removeEventListener('keydown', this._key); }
+  bumpScale(d) { this.setScale(this.state.scale + d); }
+  setScale(v) { const sc = Math.round(Math.min(2.2, Math.max(0.6, v)) * 10) / 10; this.setState({ scale: sc }); try { localStorage.setItem('wm-display-scale', String(sc)); } catch (e) {} }
+  col(v) { return v >= 85 ? 'var(--score-good)' : 'var(--score-bad)'; }
+  renderVals() {
+    const ST = { W: { bg: '#2fb344', fg: '#0c2a12' }, C: { bg: '#f59f00', fg: '#231803' }, B: { bg: '#17a2b8', fg: '#062a30' } };
+    const mkCell = v => ST[v] ? { bg: ST[v].bg, fg: ST[v].fg, edge: 'none' } : { bg: 'transparent', fg: 'var(--color-text)', edge: 'inset 0 0 0 1px color-mix(in srgb, var(--color-text) 25%, transparent)' };
+    const vh = typeof window !== 'undefined' ? window.innerHeight : 1080;
+    const vw = typeof window !== 'undefined' ? window.innerWidth : 1920;
+    const f = Math.max(0.35, Math.min(3, Math.min(vh / 1080, vw / 1920) * (this.props.textScale ?? 1) * this.state.scale));
+    const SCRAW = {
+      xl: { num: 250, kick: 18, label: 22, avg: 44, cell: 20, dow: 13, sq: 64, mk: 40, op: 21, pad: 48, gap: 20 },
+      lg: { num: 160, kick: 15, label: 18, avg: 32, cell: 16, dow: 11, sq: 52, mk: 30, op: 17, pad: 36, gap: 14 },
+      md: { num: 110, kick: 13, label: 15, avg: 24, cell: 13, dow: 10, sq: 42, mk: 24, op: 14, pad: 28, gap: 12 },
+      sm: { num: 74, kick: 11, label: 12, avg: 18, cell: 11, dow: 9, sq: 33, mk: 18, op: 12, pad: 20, gap: 9 }
+    };
+    const SC = {};
+    Object.keys(SCRAW).forEach(k => {
+      SC[k] = {};
+      Object.keys(SCRAW[k]).forEach(p => { SC[k][p] = Math.max(8, Math.round(SCRAW[k][p] * f)); });
+    });
+    const DOW = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    let shown = this.state.cfg.filter(c => c.show && this.person(c.id));
+    const fIdx = shown.findIndex(c => c.feat);
+    const featured = fIdx > 0 ? shown.splice(fIdx, 1)[0] : (fIdx === 0 ? shown.shift() : null);
+    if (featured) shown.unshift(featured);
+    const n = shown.length;
+    let gcols = '1fr', grows = '1fr', spans = [], classes = [];
+    if (n === 0) { /* empty */ }
+    else if (featured && n > 1) {
+      const below = n - 1, colsBelow = below <= 3 ? below : Math.ceil(below / 2);
+      gcols = 'repeat(' + colsBelow + ', 1fr)';
+      grows = below <= 3 ? '1.35fr 1fr' : '1.35fr 1fr 1fr';
+      spans = ['1 / -1'].concat(Array(below).fill('auto'));
+      classes = [n <= 4 ? 'xl' : 'lg'].concat(Array(below).fill(colsBelow <= 2 ? 'lg' : colsBelow === 3 ? 'md' : 'sm'));
+    } else {
+      const cols = n === 1 ? 1 : n === 2 ? 2 : n <= 4 ? 2 : n <= 6 ? 3 : 4;
+      gcols = 'repeat(' + cols + ', 1fr)'; grows = 'repeat(' + Math.ceil(n / cols) + ', 1fr)';
+      spans = Array(n).fill('auto');
+      const cls = cols === 1 ? 'xl' : cols === 2 ? 'lg' : cols === 3 ? 'md' : 'sm';
+      classes = Array(n).fill(cls);
+    }
+    const tiles = shown.map((c, i) => {
+      const id = c.id, p = this.person(id), s = SC[classes[i]];
+      const isMe = id === 'me';
+      const t = this.todayLive(id);
+      const a7 = this.avg(id, 7), a28 = this.avg(id, 28);
+      const up = this.state.updated[id], recent = up && (Date.now() - up < 5000);
+      const canOps = c.elems.ops && p.depth !== 'summary';
+      const mode = c.mode || 'Both';
+      const todayIso = this.isoOffset(0);
+      const myOps = isMe && canOps ? this._ops.filter(o => this.activeMine(o, todayIso)).map(o => ({ name: o.name, st: (this._entries[todayIso] || {})[o.id] || '' })) : [];
+      const opsAll = isMe && canOps ? myOps.filter(o => mode === 'Both' ? true : mode === 'Done' ? (o.st === 'W' || o.st === 'B') : (o.st === '' || o.st === 'C')) : [];
+      const opsCap = classes[i] === 'xl' ? 8 : classes[i] === 'lg' ? 6 : 4;
+      const opsList = opsAll.slice(0, opsCap).map(o => ({ key: o.name, name: o.name, v: o.st, ...mkCell(o.st) }));
+      const opsMore = opsAll.length > opsCap ? '+ ' + (opsAll.length - opsCap) + ' MORE' : '';
+      const inMode = v => mode === 'Both' ? true : mode === 'Done' ? (v === 'W' || v === 'B') : (v === '' || v === 'C');
+      const marks = !isMe && canOps ? [0, 1, 2, 3, 4, 5, 6, 7].map(k => { const r = this.hash(id + 'op' + k + this.isoOffset(0)); const v = r < 0.6 ? 'W' : r < 0.72 ? 'C' : r < 0.84 ? 'B' : ''; return { key: k, v, ...mkCell(v) }; }).filter(m => inMode(m.v)) : [];
+      return {
+        key: id, name: p.name, s, span: spans[i], pad: s.pad, gap: s.gap,
+        ring: recent ? '3px solid var(--color-accent)' : 'none',
+        liveDot: recent ? 'inline-block' : 'none',
+        today: String(t), todayC: this.col(t),
+        a7: String(Math.round(a7)), a7C: this.col(a7),
+        a28: String(Math.round(a28)), a28C: this.col(a28),
+        showAvgRow: !!c.elems.avg7 || !!c.elems.avg28, show7: !!c.elems.avg7, show28: !!c.elems.avg28, showLast7: !!c.elems.last7,
+        showMarks: marks.length > 0, marks,
+        showOpsList: opsList.length > 0, opsList, opsMore,
+        last7: [7, 6, 5, 4, 3, 2, 1].map(k => {
+          const d = new Date(); d.setDate(d.getDate() - k);
+          const v = this.dayScore(id, this.isoOffset(-k));
+          return { key: k, dow: DOW[d.getDay()], v: String(v), c: this.col(v) };
+        })
+      };
+    });
+    return {
+      gcols, grows, tiles, empty: n === 0, false: false,
+      ctlOpen: this.state.ctl,
+      scalePct: Math.round(this.state.scale * 100) + '%',
+      scaleUp: () => this.bumpScale(0.1),
+      scaleDown: () => this.bumpScale(-0.1),
+      scaleReset: () => this.setScale(1),
+      themeLabel: this._theme === 'dark' ? 'Light' : 'Dark',
+      toggleTheme: () => { this._theme = this._theme === 'dark' ? 'light' : 'dark'; document.body.dataset.theme = this._theme; try { localStorage.setItem('wm-theme', this._theme); } catch (e) {} this.forceUpdate(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

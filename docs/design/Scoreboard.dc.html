@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-a1f4a3ef-7a51-4fe1-8cc9-9864ce640d2b/styles.css">
+<script src="_ds/modernist-a1f4a3ef-7a51-4fe1-8cc9-9864ce640d2b/_ds_bundle.js"></script>
+<style>
+body { margin: 0; --color-elev: #ffffff; --score-good: #198754; --score-bad: #b45309; }
+body[data-theme="dark"] {
+  --color-bg: #171615; --color-surface: #201e1d; --color-text: #eceae8;
+  --color-divider: #3a3735; --color-elev: #262422;
+  --color-accent-600: #f0664e; --color-accent-700: #f79c8d;
+  --color-neutral-500: #8a8683; --color-neutral-600: #a5a19d; --color-neutral-700: #c0bcb8;
+  --score-good: #22c55e; --score-bad: #f59e0b;
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.6);
+}
+button:focus-visible { outline: 2px solid var(--color-accent) !important; outline-offset: 2px; }
+sc-for, sc-if { display: contents; }
+a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
+.dialog { background: var(--color-elev); }
+</style>
+</helmet>
+<div style="min-height: 100vh; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); display: flex; flex-direction: column;">
+  <div class="nav" style="gap: 24px;">
+    <div class="nav-brand" style="display: flex; align-items: center; gap: 10px; margin-right: 0;">
+      <span style="width: 14px; height: 14px; background: var(--color-accent); display: inline-block;"></span>
+      WIN MATRIX
+    </div>
+    <div style="display: flex; gap: 18px; margin-right: auto;">
+      <a href="./Win%20Matrix.dc.html" style="text-decoration: none; color: inherit; font: 600 13px var(--font-heading); letter-spacing: 0.04em; padding: 4px 0;">MATRIX</a>
+      <a href="./Scoreboard.dc.html" style="text-decoration: none; color: var(--color-accent); font: 600 13px var(--font-heading); letter-spacing: 0.04em; padding: 4px 0; box-shadow: inset 0 -2px 0 var(--color-accent);" aria-current="page">SCOREBOARD</a>
+    </div>
+    <button class="btn btn-secondary" onClick="{{toggleTheme}}" title="Switch theme">{{themeLabel}}</button>
+    <a class="btn btn-primary" href="./Scoreboard%20Display.dc.html" style="text-decoration: none;">Open display</a>
+    <sc-if value="{{signedIn}}" hint-placeholder-val="{{true}}">
+      <span style="display: inline-flex; align-items: center; gap: 8px; font: 600 12px var(--font-heading); color: var(--color-neutral-700);"><span style="width: 8px; height: 8px; background: var(--score-good);"></span>{{userName}}</span>
+    </sc-if>
+    <sc-if value="{{signedOut}}" hint-placeholder-val="{{false}}">
+      <a class="btn btn-ghost" href="./Login.dc.html" style="text-decoration: none;">Sign in</a>
+    </sc-if>
+  </div>
+  <div style="display: flex; align-items: baseline; gap: 20px; padding: 16px 24px; border-bottom: 2px solid var(--color-divider); flex-wrap: wrap;">
+    <h2 style="margin: 0; font-size: 26px;">Compose your display</h2>
+    <div style="font-size: 13px; color: var(--color-neutral-700); max-width: 620px; text-wrap: pretty;">The display is glass — no controls, nothing to touch. It updates itself whenever anyone records. You decide here whose boards show, what from each, and how they share the screen.</div>
+  </div>
+  <div style="flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(660px, 1fr)); align-items: start;">
+    <div style="border-right: 2px solid var(--color-divider); border-bottom: 2px solid var(--color-divider); overflow-x: auto;">
+      <sc-for list="{{boards}}" as="b" hint-placeholder-count="7">
+        <div style="display: grid; grid-template-columns: 18px 88px 88px 1fr auto; gap: 10px 14px; align-items: center; padding: 14px 24px; border-bottom: 1px solid var(--color-divider); opacity: {{b.dim}};">
+          <button style="all: unset; box-sizing: border-box; width: 18px; height: 18px; border: 1.5px solid var(--color-divider); background: {{b.boxBg}}; display: inline-flex; align-items: center; justify-content: center; color: var(--color-bg); font: 800 12px var(--font-heading); cursor: pointer;" onClick="{{b.toggleShow}}" title="Show on display">{{b.check}}</button>
+          <span style="font: 800 15px var(--font-heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{b.name}}</span>
+          <span style="font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-neutral-500);">{{b.depth}}</span>
+          <div style="display: grid; grid-template-columns: repeat(4, 104px); gap: 6px;">
+            <sc-for list="{{b.chips}}" as="ch" hint-placeholder-count="4">
+              <button style="all: unset; box-sizing: border-box; width: 100%; display: inline-flex; justify-content: flex-start; padding: 5px 10px; font: 600 10px var(--font-heading); letter-spacing: 0.06em; cursor: {{ch.cursor}}; border: 1px solid var(--color-divider); background: {{ch.bg}}; color: {{ch.fg}}; opacity: {{ch.dim}};" onClick="{{ch.toggle}}" title="{{ch.title}}">{{ch.label}}</button>
+            </sc-for>
+          </div>
+          <div style="display: flex; gap: 4px; align-items: center; justify-self: end;">
+            <button style="all: unset; box-sizing: border-box; padding: 4px 10px; font: 600 10px var(--font-heading); letter-spacing: 0.06em; cursor: pointer; border: 1px solid {{b.featBorder}}; color: {{b.featFg}}; background: transparent;" onClick="{{b.toggleFeat}}" title="The featured board takes the dominant band of the grid">FEATURE</button>
+            <button class="btn btn-icon btn-secondary" style="width: 28px; height: 28px;" onClick="{{b.up}}" title="Move up">↑</button>
+            <button class="btn btn-icon btn-secondary" style="width: 28px; height: 28px;" onClick="{{b.down}}" title="Move down">↓</button>
+          </div>
+          <sc-if value="{{b.showMode}}" hint-placeholder-val="{{false}}">
+            <div style="grid-column: 2 / 4; align-self: center;">
+              <span style="font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-neutral-500);">Your ops panel shows</span>
+            </div>
+            <div style="grid-column: 4 / 5; display: grid; grid-template-columns: repeat(4, 104px); gap: 6px;">
+              <sc-for list="{{b.modeOpts}}" as="m" hint-placeholder-count="3">
+                <button style="all: unset; box-sizing: border-box; width: 100%; display: inline-flex; justify-content: flex-start; padding: 5px 10px; font: 600 10px var(--font-heading); letter-spacing: 0.06em; cursor: pointer; border: 1px solid var(--color-divider); background: {{m.bg}}; color: {{m.fg}};" onClick="{{m.pick}}">{{m.label}}</button>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+      <div style="padding: 14px 24px; font-size: 12px; color: var(--color-neutral-600); max-width: 480px; text-wrap: pretty;">Each person granted their own depth when they shared — summary boards can't show op detail. Access comes from their share link.</div>
+    </div>
+    <div style="padding: 24px; position: sticky; top: 0;">
+      <div style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-neutral-600); margin-bottom: 10px;">Arrangement — {{shownCount}} on the glass</div>
+      <div style="aspect-ratio: 16 / 9; background: var(--color-divider); border: 2px solid var(--color-divider); display: grid; gap: 2px; grid-template-columns: {{pvCols}}; grid-template-rows: {{pvRows}};">
+        <sc-for list="{{pvTiles}}" as="pt" hint-placeholder-count="3">
+          <div style="grid-column: {{pt.span}}; background: var(--color-bg); padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;">
+            <span style="font: 800 9px var(--font-heading); letter-spacing: 0.12em; text-transform: uppercase;">{{pt.name}}</span>
+            <span style="font: 800 {{pt.num}}px var(--font-heading); line-height: 1; color: {{pt.c}};">{{pt.v}}</span>
+          </div>
+        </sc-for>
+        <sc-if value="{{pvEmpty}}" hint-placeholder-val="{{false}}">
+          <div style="background: var(--color-bg); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--color-neutral-600);">Nothing selected</div>
+        </sc-if>
+      </div>
+      <div style="font-size: 12px; color: var(--color-neutral-600); margin-top: 10px; text-wrap: pretty;">One board owns the whole grid; several divide it. Content steps the type scale — it never stretches. The display rebalances live.</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    // PROTOTYPE SEAM: hard-coded sample sharers. Production: boards come from share grants in Supabase.
+    this.PEOPLE = {
+      mim: { name: 'Mim', depth: 'Summary', full: false, base: 91 },
+      rob: { name: 'Rob', depth: 'Full grid', full: true, base: 87 },
+      kate: { name: 'Kate', depth: 'Summary', full: false, base: 79 },
+      dan: { name: 'Dan', depth: 'Summary', full: false, base: 94 },
+      priya: { name: 'Priya', depth: 'Full grid', full: true, base: 83 },
+      sam: { name: 'Sam', depth: 'Summary', full: false, base: 88 }
+    };
+    let user = null; try { user = JSON.parse(localStorage.getItem('wm-user')); } catch (e) {}
+    this._user = user;
+    let cfg;
+    try { const s = localStorage.getItem('wm-board-config'); if (s) { const a = JSON.parse(s); if (Array.isArray(a) && a.length) cfg = a; } } catch (e) {}
+    if (!cfg) cfg = [
+      { id: 'me', show: true, feat: true, elems: { avg7: true, avg28: true, last7: true, ops: true }, mode: 'Both' },
+      { id: 'mim', show: true, feat: false, elems: { avg7: true, avg28: true, last7: true, ops: false } },
+      { id: 'rob', show: true, feat: false, elems: { avg7: true, avg28: true, last7: true, ops: false } },
+      { id: 'kate', show: false, feat: false, elems: { avg7: true, avg28: true, last7: true, ops: false } },
+      { id: 'dan', show: false, feat: false, elems: { avg7: true, avg28: true, last7: true, ops: false } },
+      { id: 'priya', show: false, feat: false, elems: { avg7: true, avg28: true, last7: true, ops: false } },
+      { id: 'sam', show: false, feat: false, elems: { avg7: true, avg28: true, last7: true, ops: false } }
+    ];
+    let th = 'dark'; try { th = localStorage.getItem('wm-theme') || 'dark'; } catch (e) {}
+    this._theme = th;
+    this.state = { cfg };
+  }
+  componentDidMount() { document.body.dataset.theme = this._theme; }
+  save(cfg) { this.setState({ cfg }); try { localStorage.setItem('wm-board-config', JSON.stringify(cfg)); } catch (e) {} }
+  mut(fn) { const cfg = this.state.cfg.map(c => ({ ...c, elems: { ...c.elems } })); fn(cfg); this.save(cfg); }
+  hash(s) { let h = 9; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 387420489); return ((h >>> 8) % 1000) / 1000; }
+  isoOffset(n) { const d = new Date(); d.setDate(d.getDate() + n); const p = x => String(x).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); }
+  person(id) {
+    if (id === 'me') return { name: this._user ? this._user.name : 'You', depth: 'Your board', full: true };
+    return this.PEOPLE[id];
+  }
+  myTodayScore() {
+    let ops = [], entries = {};
+    try { ops = JSON.parse(localStorage.getItem('wm-ops')) || []; } catch (e) {}
+    try { entries = JSON.parse(localStorage.getItem('wm-entries')) || {}; } catch (e) {}
+    const iso = this.isoOffset(0), e = entries[iso] || {};
+    const act = ops.filter(o => !(o.archivedFrom && iso >= o.archivedFrom && (!o.resumedFrom || iso < o.resumedFrom)));
+    if (!act.length) return null;
+    let w = 0, b = 0;
+    act.forEach(o => { if (e[o.id] === 'W') w++; else if (e[o.id] === 'B') b++; });
+    const den = act.length - b;
+    return den <= 0 ? null : Math.round(w / den * 100);
+  }
+  todayScore(id) {
+    if (id === 'me') { const v = this.myTodayScore(); return v === null ? 0 : v; }
+    const p = this.PEOPLE[id]; return Math.max(0, Math.min(100, Math.round(p.base + (this.hash(id + this.isoOffset(0)) - 0.5) * 30)));
+  }
+  renderVals() {
+    const cfg = this.state.cfg;
+    const boards = cfg.map((c, i) => {
+      const p = this.person(c.id); if (!p) return null;
+      const chipDefs = [
+        { k: 'avg7', label: '7-DAY AVG', ok: true },
+        { k: 'avg28', label: '28-DAY AVG', ok: true },
+        { k: 'last7', label: 'LAST 7 DAYS', ok: true },
+        { k: 'ops', label: 'OP DETAIL', ok: p.full }
+      ];
+      return {
+        key: c.id, name: p.name, depth: p.depth,
+        dim: c.show ? '1' : '0.5',
+        check: c.show ? '✓' : '', boxBg: c.show ? 'var(--color-accent)' : 'transparent',
+        toggleShow: () => this.mut(a => { a[i].show = !a[i].show; }),
+        chips: chipDefs.map(ch => ({
+          key: ch.k, label: ch.label,
+          bg: ch.ok && c.elems[ch.k] ? 'var(--color-accent)' : 'transparent',
+          fg: ch.ok && c.elems[ch.k] ? '#ffffff' : 'var(--color-neutral-600)',
+          dim: ch.ok ? '1' : '0.35', cursor: ch.ok ? 'pointer' : 'not-allowed',
+          title: ch.ok ? 'Show this element' : 'Not shared — ' + p.name + ' granted summary only',
+          toggle: () => { if (ch.ok) this.mut(a => { a[i].elems[ch.k] = !a[i].elems[ch.k]; }); }
+        })),
+        featBorder: c.feat ? 'var(--color-accent)' : 'var(--color-divider)',
+        featFg: c.feat ? 'var(--color-accent)' : 'var(--color-neutral-600)',
+        toggleFeat: () => this.mut(a => { const was = a[i].feat; a.forEach(x => x.feat = false); a[i].feat = !was; }),
+        up: () => this.mut(a => { if (i > 0) { const t = a[i - 1]; a[i - 1] = a[i]; a[i] = t; } }),
+        down: () => this.mut(a => { if (i < a.length - 1) { const t = a[i + 1]; a[i + 1] = a[i]; a[i] = t; } }),
+        showMode: c.id === 'me' && c.show && c.elems.ops,
+        modeOpts: ['Not done', 'Done', 'Both'].map(m => ({
+          key: m, label: m.toUpperCase(),
+          bg: (c.mode || 'Both') === m ? 'var(--color-accent)' : 'transparent',
+          fg: (c.mode || 'Both') === m ? '#ffffff' : 'var(--color-neutral-600)',
+          pick: () => this.mut(a => { a[i].mode = m; })
+        }))
+      };
+    }).filter(Boolean);
+    let shown = cfg.filter(c => c.show && this.person(c.id));
+    const fIdx = shown.findIndex(c => c.feat);
+    if (fIdx > 0) { const f = shown.splice(fIdx, 1)[0]; shown.unshift(f); }
+    const featured = shown.length && shown[0].feat;
+    const n = shown.length;
+    let pvCols = '1fr', pvRows = '1fr', spans = [], nums = [];
+    if (featured && n > 1) {
+      const below = n - 1, colsBelow = below <= 3 ? below : Math.ceil(below / 2);
+      pvCols = 'repeat(' + colsBelow + ', 1fr)';
+      pvRows = below <= 3 ? '1.35fr 1fr' : '1.35fr 1fr 1fr';
+      spans = ['1 / -1'].concat(Array(below).fill('auto'));
+      nums = [34].concat(Array(below).fill(colsBelow <= 2 ? 24 : 18));
+    } else if (n > 0) {
+      const cols = n === 1 ? 1 : n === 2 ? 2 : n <= 4 ? 2 : n <= 6 ? 3 : 4;
+      pvCols = 'repeat(' + cols + ', 1fr)'; pvRows = 'repeat(' + Math.ceil(n / cols) + ', 1fr)';
+      spans = Array(n).fill('auto');
+      nums = Array(n).fill(cols === 1 ? 40 : cols === 2 ? 26 : cols === 3 ? 20 : 15);
+    }
+    const pvTiles = shown.map((c, i) => {
+      const t = this.todayScore(c.id);
+      return { key: c.id, name: this.person(c.id).name, span: spans[i], num: nums[i], v: String(t), c: t >= 85 ? 'var(--score-good)' : 'var(--score-bad)' };
+    });
+    const u = this._user;
+    return {
+      boards, pvTiles, pvCols, pvRows, pvEmpty: n === 0,
+      shownCount: String(n),
+      signedIn: !!u, signedOut: !u, userName: u ? u.name : '',
+      themeLabel: this._theme === 'dark' ? 'Light' : 'Dark',
+      toggleTheme: () => { this._theme = this._theme === 'dark' ? 'light' : 'dark'; document.body.dataset.theme = this._theme; try { localStorage.setItem('wm-theme', this._theme); } catch (e) {} this.forceUpdate(); },
+      true: true, false: false
+    };
+  }
+}
+</script>
+</body>
+</html>

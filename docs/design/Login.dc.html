@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-a1f4a3ef-7a51-4fe1-8cc9-9864ce640d2b/styles.css">
+<script src="_ds/modernist-a1f4a3ef-7a51-4fe1-8cc9-9864ce640d2b/_ds_bundle.js"></script>
+<style>
+body { margin: 0; --color-elev: #ffffff; }
+body[data-theme="dark"] {
+  --color-bg: #171615; --color-surface: #201e1d; --color-text: #eceae8;
+  --color-divider: #3a3735; --color-elev: #262422;
+  --color-accent-600: #f0664e; --color-accent-700: #f79c8d;
+  --color-neutral-500: #8a8683; --color-neutral-600: #a5a19d; --color-neutral-700: #c0bcb8;
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.6);
+}
+sc-for, sc-if { display: contents; }
+a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
+</style>
+</helmet>
+<div style="min-height: 100vh; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); display: flex; flex-direction: column;">
+  <div class="nav" style="gap: 24px;">
+    <div class="nav-brand" style="display: flex; align-items: center; gap: 10px;">
+      <span style="width: 14px; height: 14px; background: var(--color-accent); display: inline-block;"></span>
+      WIN MATRIX
+    </div>
+    <button class="btn btn-secondary" style="margin-left: auto;" onClick="{{toggleTheme}}">{{themeLabel}}</button>
+  </div>
+  <div style="flex: 1; display: grid; grid-template-columns: minmax(360px, 560px) 1fr;">
+    <div style="padding: 56px 48px; border-right: 2px solid var(--color-divider); display: flex; flex-direction: column; gap: 24px;">
+      <div>
+        <div style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-accent); font-weight: 800;">Sign in</div>
+        <h1 style="margin: 6px 0 0; font: 800 40px var(--font-heading); letter-spacing: -0.02em;">Win Matrix</h1>
+        <p style="margin: 10px 0 0; font-size: 14px; line-height: 1.5; color: var(--color-neutral-700); max-width: 400px; text-wrap: pretty;">Record wins, not losses. Keep every op at 85 or better — if one slips under, make it easier or remove it.</p>
+      </div>
+      <sc-if value="{{signedOut}}" hint-placeholder-val="{{true}}">
+        <div style="display: flex; flex-direction: column; gap: 14px; max-width: 400px;">
+          <div class="field">
+            <label>Email</label>
+            <input class="input" type="email" value="{{email}}" onChange="{{setEmail}}" placeholder="you@example.com">
+          </div>
+          <button class="btn btn-primary btn-block" onClick="{{sendLink}}">Send magic link</button>
+          <div style="font-size: 12px; color: var(--color-neutral-600); text-wrap: pretty;">No password. The link signs this device in.</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{linkSent}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 14px; max-width: 400px; border: 2px solid var(--color-divider); padding: 20px;">
+          <div style="font: 800 16px var(--font-heading);">Check your email</div>
+          <div style="font-size: 13px; line-height: 1.5; color: var(--color-neutral-700);">A sign-in link went to <strong>{{email}}</strong>. Open it on this device.</div>
+          <button class="btn btn-secondary" onClick="{{demoContinue}}">Open the Matrix — demo session</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{signedIn}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 14px; max-width: 400px; border: 2px solid var(--color-divider); padding: 20px;">
+          <div style="font: 800 16px var(--font-heading);">Signed in as {{userName}}</div>
+          <a class="btn btn-primary" href="./Win%20Matrix.dc.html" style="text-decoration: none;">Open the Matrix</a>
+          <button class="btn btn-ghost" onClick="{{logout}}">Log out</button>
+        </div>
+      </sc-if>
+    </div>
+    <div style="padding: 56px 48px; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; background: var(--color-surface);">
+      <div style="display: flex; gap: 2px;">
+        <span style="width: 40px; height: 40px; background: #2fb344; display: inline-flex; align-items: center; justify-content: center; font: 800 15px var(--font-heading); color: #0c2a12;">W</span>
+        <span style="width: 40px; height: 40px; background: #f59f00; display: inline-flex; align-items: center; justify-content: center; font: 800 15px var(--font-heading); color: #231803;">C</span>
+        <span style="width: 40px; height: 40px; background: #17a2b8; display: inline-flex; align-items: center; justify-content: center; font: 800 15px var(--font-heading); color: #062a30;">B</span>
+      </div>
+      <div style="font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-neutral-600);">Win · Change · Bye — one tap a day per op</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    let th = 'dark'; try { th = localStorage.getItem('wm-theme') || 'dark'; } catch (e) {}
+    this._theme = th;
+    let user = null; try { user = JSON.parse(localStorage.getItem('wm-user')); } catch (e) {}
+    this.state = { user, email: '', sent: false };
+  }
+  componentDidMount() { document.body.dataset.theme = this._theme; }
+  iso(d) { const p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); }
+  renderVals() {
+    const u = this.state.user;
+    return {
+      signedOut: !u && !this.state.sent,
+      linkSent: !u && this.state.sent,
+      signedIn: !!u,
+      userName: u ? u.name : '',
+      email: this.state.email,
+      setEmail: e => this.setState({ email: e.target.value }),
+      // PROTOTYPE SEAM: fake magic link (no email sends). Production: Supabase auth signInWithOtp.
+      sendLink: () => { if (this.state.email.trim()) this.setState({ sent: true }); },
+      demoContinue: () => {
+        const em = this.state.email.trim() || 'you@example.com';
+        const user = { name: em.split('@')[0].replace(/^./, c => c.toUpperCase()), email: em, start: this.iso(new Date()) };
+        try { localStorage.setItem('wm-user', JSON.stringify(user)); } catch (e) {}
+        window.location.href = './Win%20Matrix.dc.html';
+      },
+      logout: () => { try { localStorage.removeItem('wm-user'); } catch (e) {} this.setState({ user: null, sent: false }); },
+      themeLabel: this._theme === 'dark' ? 'Light' : 'Dark',
+      toggleTheme: () => { this._theme = this._theme === 'dark' ? 'light' : 'dark'; document.body.dataset.theme = this._theme; try { localStorage.setItem('wm-theme', this._theme); } catch (e) {} this.forceUpdate(); },
+      true: true, false: false
+    };
+  }
+}
+</script>
+</body>
+</html>

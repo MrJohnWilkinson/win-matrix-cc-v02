@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-a1f4a3ef-7a51-4fe1-8cc9-9864ce640d2b/styles.css">
+<script src="_ds/modernist-a1f4a3ef-7a51-4fe1-8cc9-9864ce640d2b/_ds_bundle.js"></script>
+<style>
+body { margin: 0; overflow-x: hidden;
+  --color-elev: #ffffff;
+  --tint-today: color-mix(in srgb, var(--color-accent) 7%, var(--color-bg));
+  --score-good: #198754; --score-bad: #b45309;
+}
+body[data-theme="dark"] {
+  --color-bg: #171615; --color-surface: #201e1d; --color-text: #eceae8;
+  --color-divider: #3a3735; --color-elev: #262422;
+  --color-accent-600: #f0664e; --color-accent-700: #f79c8d;
+  --color-neutral-500: #8a8683; --color-neutral-600: #a5a19d; --color-neutral-700: #c0bcb8;
+  --score-good: #22c55e; --score-bad: #f59e0b;
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.6);
+}
+button:focus-visible { outline: 2px solid var(--color-accent) !important; outline-offset: 2px; }
+sc-for, sc-if { display: contents; }
+a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
+.dialog { background: var(--color-elev); }
+</style>
+</helmet>
+<div style="height: 100vh; display: flex; flex-direction: column; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body);">
+  <div class="nav" style="gap: 24px;">
+    <div class="nav-brand" style="display: flex; align-items: center; gap: 10px; margin-right: 0;">
+      <span style="width: 14px; height: 14px; background: var(--color-accent); display: inline-block;"></span>
+      WIN MATRIX
+    </div>
+    <div style="display: flex; gap: 18px; margin-right: auto;">
+      <a href="./Win%20Matrix.dc.html" style="text-decoration: none; color: var(--color-accent); font: 600 13px var(--font-heading); letter-spacing: 0.04em; padding: 4px 0; box-shadow: inset 0 -2px 0 var(--color-accent);" aria-current="page">MATRIX</a>
+      <a href="./Scoreboard.dc.html" style="text-decoration: none; color: inherit; font: 600 13px var(--font-heading); letter-spacing: 0.04em; padding: 4px 0;">SCOREBOARD</a>
+    </div>
+    <button class="btn btn-secondary" onClick="{{toggleTheme}}" title="Switch theme">{{themeLabel}}</button>
+    <button class="btn btn-secondary" onClick="{{openAdd}}">+ Add op</button>
+    <button class="btn btn-primary" onClick="{{openShare}}">Share score</button>
+    <sc-if value="{{signedIn}}" hint-placeholder-val="{{true}}">
+      <button class="btn btn-ghost" onClick="{{toggleAccount}}" title="Account" style="display: inline-flex; align-items: center; gap: 8px;">
+        <span style="width: 8px; height: 8px; background: var(--score-good);"></span>{{userName}}
+      </button>
+    </sc-if>
+    <sc-if value="{{signedOut}}" hint-placeholder-val="{{false}}">
+      <a class="btn btn-ghost" href="./Login.dc.html" style="text-decoration: none;">Sign in</a>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{accountOpen}}" hint-placeholder-val="{{false}}">
+    <div style="position: fixed; inset: 0; z-index: 40;" onClick="{{closeAccount}}"></div>
+    <div style="position: fixed; z-index: 41; right: 16px; top: 60px; width: 280px; background: var(--color-elev); box-shadow: var(--shadow-lg); border: 2px solid var(--color-divider); padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+      <div style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-neutral-600);">Signed in · {{userEmail}}</div>
+      <div class="field">
+        <label>Display name — shown on scoreboards</label>
+        <input class="input" value="{{userName}}" onChange="{{renameUser}}">
+      </div>
+      <div class="field">
+        <label>Start date — scoring counts from here</label>
+        <input class="input" type="date" value="{{userStart}}" onChange="{{setStart}}">
+      </div>
+      <button class="btn btn-secondary" onClick="{{logout}}">Log out</button>
+    </div>
+  </sc-if>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1.6fr; border-bottom: 2px solid var(--color-divider);">
+    <div style="padding: 20px 24px;">
+      <div style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-neutral-600);">Today</div>
+      <div style="font: 800 44px var(--font-heading); letter-spacing: -0.02em; color: {{statToday.c}};">{{statToday.v}}</div>
+    </div>
+    <div style="padding: 20px 24px; border-left: 1px solid var(--color-divider);">
+      <div style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-neutral-600);">7-day avg</div>
+      <div style="font: 800 44px var(--font-heading); letter-spacing: -0.02em; color: {{stat7.c}};">{{stat7.v}}</div>
+    </div>
+    <div style="padding: 20px 24px; border-left: 1px solid var(--color-divider);">
+      <div style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-neutral-600);">28-day avg</div>
+      <div style="font: 800 44px var(--font-heading); letter-spacing: -0.02em; color: {{stat28.c}};">{{stat28.v}}</div>
+    </div>
+    <div style="padding: 20px 24px; border-left: 1px solid var(--color-divider); display: flex; flex-direction: column; justify-content: center; gap: 4px;">
+      <div style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-accent); font-weight: 800;">The 85 rule</div>
+      <div style="font-size: 13px; line-height: 1.45; max-width: 420px; text-wrap: pretty;">Keep every op at 85 or better. If one slips under, make it easier or remove it. Focus on the wins.</div>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 20px; padding: 12px 24px; border-bottom: 1px solid var(--color-divider); flex-wrap: wrap;">
+    <div style="display: inline-flex; border: 1px solid var(--color-divider);">
+      <sc-for list="{{winOpts}}" as="w" hint-placeholder-count="3">
+        <button style="all: unset; box-sizing: border-box; padding: 8px 14px; font: 600 12px var(--font-heading); letter-spacing: 0.05em; cursor: pointer; border-right: 1px solid var(--color-divider); background: {{w.bg}}; color: {{w.fg}};" onClick="{{w.pick}}">{{w.label}}</button>
+      </sc-for>
+    </div>
+    <div style="display: flex; align-items: center; gap: 14px; font-size: 11px; letter-spacing: 0.04em;">
+      <span style="display: inline-flex; align-items: center; gap: 6px;" title="Win — you did it"><span style="width: 12px; height: 12px; background: #2fb344;"></span>W WIN</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px;" title="Change — not done: make it easier or remove it"><span style="width: 12px; height: 12px; background: #f59f00;"></span>C CHANGE</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px;" title="Bye — not required today"><span style="width: 12px; height: 12px; background: #17a2b8;"></span>B BYE</span>
+    </div>
+    <div style="margin-left: auto; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-neutral-600);">Click to cycle · Drag to paint a run</div>
+  </div>
+
+  <sc-if value="{{noOps}}" hint-placeholder-val="{{false}}">
+    <div style="flex: 1; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 48px; gap: 10px;">
+      <span style="width: 14px; height: 14px; background: var(--color-accent);"></span>
+      <div style="font: 800 28px var(--font-heading);">Add your first op</div>
+      <div style="font-size: 14px; color: var(--color-neutral-600); max-width: 420px; text-wrap: pretty;">An op is anything you want to do most days. Start it easy — you can make it harder once it holds 85.</div>
+      <button class="btn btn-primary" style="margin-top: 8px;" onClick="{{openAdd}}">+ Add op</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{hasOps}}" hint-placeholder-val="{{true}}">
+  <div style="flex: 1; min-height: 0; overflow: auto; padding: 0 24px 32px;" ref="{{scrollRef}}">
+    <div style="display: grid; grid-template-columns: {{gridCols}}; position: sticky; top: 0; z-index: 5; background: var(--color-bg); border-bottom: 2px solid var(--color-divider); align-items: end;">
+      <div style="padding: 8px 12px 10px 10px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-neutral-600);">Day</div>
+      <div style="padding: 8px 12px 10px 0; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-neutral-600); text-align: right;">Score</div>
+      <sc-for list="{{hops}}" as="op" hint-placeholder-count="6">
+        <button style="all: unset; box-sizing: border-box; height: 130px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 8px; padding: 8px 0 10px; cursor: pointer; border-left: 1px solid color-mix(in srgb, var(--color-text) 12%, transparent);" style-hover="background: color-mix(in srgb, var(--color-text) 6%, transparent);" onClick="{{op.menu}}" title="{{op.title}}">
+          <span style="writing-mode: vertical-rl; transform: rotate(180deg); font: 600 12px var(--font-heading); letter-spacing: 0.02em; white-space: nowrap; max-height: 86px; overflow: hidden;">{{op.name}}</span>
+          <span style="width: 8px; height: 8px; background: {{op.tag}};"></span>
+        </button>
+      </sc-for>
+    </div>
+    <sc-for list="{{avgRows}}" as="avr" hint-placeholder-count="2">
+      <div style="display: grid; grid-template-columns: {{gridCols}}; align-items: stretch; height: 34px; background: var(--color-surface); border-bottom: {{avr.rule}}; position: sticky; top: {{avr.top}}px; z-index: 4;">
+        <div style="display: flex; align-items: center; padding-left: 10px; font: 600 12px var(--font-heading); letter-spacing: 0.03em;">{{avr.label}}</div>
+        <div style="display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; font: 800 14px var(--font-heading); color: {{avr.totalC}};">{{avr.total}}</div>
+        <sc-for list="{{avr.cells}}" as="ac" hint-placeholder-count="6">
+          <div style="display: flex; align-items: center; justify-content: center; border-left: 1px solid color-mix(in srgb, var(--color-text) 6%, transparent); font: 800 13px var(--font-heading); color: {{ac.c}};">{{ac.v}}</div>
+        </sc-for>
+      </div>
+    </sc-for>
+    <sc-for list="{{rows}}" as="row" hint-placeholder-count="8">
+      <div style="display: grid; grid-template-columns: {{gridCols}}; align-items: stretch; height: 36px; background: {{row.bg}}; box-shadow: {{row.edge}}; opacity: {{row.dim}}; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);">
+        <div style="display: flex; align-items: center; gap: 8px; padding: 0 12px 0 10px; font-size: 12px;">
+          <span style="width: 34px; font-weight: 800; font-family: var(--font-heading); color: {{row.dowC}};">{{row.dow}}</span>
+          <span style="color: var(--color-neutral-700);">{{row.dateLabel}}</span>
+          <span style="font: 800 9px var(--font-heading); letter-spacing: 0.08em; color: var(--color-accent);">{{row.badge}}</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; font: 800 14px var(--font-heading); color: {{row.scoreC}};">{{row.score}}</div>
+        <sc-for list="{{row.cells}}" as="cell" hint-placeholder-count="6">
+          <div style="padding: 3px; border-left: 1px solid color-mix(in srgb, var(--color-text) 6%, transparent);">
+            <button style="all: unset; box-sizing: border-box; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font: 800 12px var(--font-heading); cursor: {{cell.cursor}}; user-select: none; background: {{cell.bg}}; color: {{cell.fg}}; box-shadow: {{cell.edge}}; opacity: {{cell.dim}};" onMouseDown="{{cell.down}}" onMouseEnter="{{cell.enter}}" title="{{cell.title}}">{{cell.label}}</button>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+    <sc-if value="{{hasArchived}}" hint-placeholder-val="{{false}}">
+      <div style="display: flex; align-items: center; gap: 12px; padding: 14px 0; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-neutral-600); flex-wrap: wrap;">
+        Archived:
+        <sc-for list="{{archived}}" as="ar" hint-placeholder-count="1">
+          <button class="btn btn-ghost" style="font-size: 11px;" onClick="{{ar.restore}}">{{ar.name}} — restore</button>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{menuOpen}}" hint-placeholder-val="{{false}}">
+    <div style="position: fixed; inset: 0; z-index: 40;" onClick="{{closeMenu}}"></div>
+    <div style="position: fixed; z-index: 41; width: 280px; background: var(--color-elev); box-shadow: var(--shadow-lg); border: 2px solid var(--color-divider); padding: 16px; display: flex; flex-direction: column; gap: 12px; left: {{menuX}}px; top: {{menuY}}px;">
+      <div class="field">
+        <label>Op name</label>
+        <input class="input" value="{{menuName}}" onChange="{{renameOp}}">
+      </div>
+      <div class="field">
+        <label>Note — targets, days, e.g. "mwf" or "10 min"</label>
+        <input class="input" value="{{menuNote}}" onChange="{{noteOp}}" placeholder="Optional">
+      </div>
+      <div>
+        <div style="font-size: 12px; color: var(--color-neutral-700); margin-bottom: 5px;">Colour tag</div>
+        <div style="display: flex; gap: 6px;">
+          <sc-for list="{{swatches}}" as="sw" hint-placeholder-count="5">
+            <button style="all: unset; box-sizing: border-box; width: 24px; height: 24px; cursor: pointer; background: {{sw.c}}; outline: {{sw.ring}}; outline-offset: 2px;" onClick="{{sw.pick}}"></button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-secondary" style="flex: 1;" onClick="{{moveL}}">◀ Move</button>
+        <button class="btn btn-secondary" style="flex: 1;" onClick="{{moveR}}">Move ▶</button>
+      </div>
+      <div style="display: flex; gap: 8px; border-top: 1px solid var(--color-divider); padding-top: 12px;">
+        <button class="btn btn-secondary" style="flex: 1;" onClick="{{openArchive}}">Archive…</button>
+        <button class="btn btn-ghost" style="flex: 1;" onClick="{{openDelete}}">Delete…</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{archOpen}}" hint-placeholder-val="{{false}}">
+    <div class="dialog-backdrop" style="z-index: 50;" onClick="{{closeArch}}">
+      <div class="dialog" onClick="{{eatClick}}">
+        <div class="dialog-title">{{archTitle}}</div>
+        <div class="dialog-body" style="margin: 0;">{{archBody}} Scores respect the dates — history before the change stays counted.</div>
+        <div class="field">
+          <label>Effective from</label>
+          <input class="input" type="date" value="{{archDate}}" onChange="{{setArchDate}}">
+        </div>
+        <div class="dialog-actions" style="margin: 0;">
+          <button class="btn btn-secondary" onClick="{{closeArch}}">Cancel</button>
+          <button class="btn btn-primary" onClick="{{confirmArch}}">{{archAction}}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{delOpen}}" hint-placeholder-val="{{false}}">
+    <div class="dialog-backdrop" style="z-index: 50;" onClick="{{closeDel}}">
+      <div class="dialog" onClick="{{eatClick}}">
+        <div class="dialog-title">Delete {{delName}}?</div>
+        <div class="dialog-body" style="margin: 0;">Deleting removes the op and its whole history, and past scores recompute. Archiving keeps history — usually the better move.</div>
+        <div class="dialog-actions" style="margin: 0;">
+          <button class="btn btn-secondary" onClick="{{closeDel}}">Cancel</button>
+          <button class="btn btn-primary" onClick="{{confirmDel}}">Delete op</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{shareOpen}}" hint-placeholder-val="{{false}}">
+    <div class="dialog-backdrop" style="z-index: 50;" onClick="{{closeShare}}">
+      <div class="dialog" onClick="{{eatClick}}">
+        <div class="dialog-title">Share your score</div>
+        <div class="dialog-body" style="margin: 0;">Anyone with the link signs in to view. Choose how much they see.</div>
+        <button style="all: unset; box-sizing: border-box; display: block; padding: 12px; border: 2px solid {{depthSummaryBorder}}; cursor: pointer;" onClick="{{pickSummary}}">
+          <span style="font: 800 13px var(--font-heading); display: block;">Summary scores</span>
+          <span style="font-size: 12px; color: var(--color-neutral-700);">Today, 7-day, 28-day and the last 7 daily scores</span>
+        </button>
+        <button style="all: unset; box-sizing: border-box; display: block; padding: 12px; border: 2px solid {{depthFullBorder}}; cursor: pointer;" onClick="{{pickFull}}">
+          <span style="font: 800 13px var(--font-heading); display: block;">Full grid</span>
+          <span style="font-size: 12px; color: var(--color-neutral-700);">Every op, every day — the whole matrix</span>
+        </button>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <input class="input" value="{{shareUrl}}" readOnly="{{true}}" style="flex: 1;">
+          <button class="btn btn-primary" onClick="{{copyLink}}">{{copyLabel}}</button>
+        </div>
+        <div class="dialog-actions" style="margin: 0;">
+          <button class="btn btn-secondary" onClick="{{closeShare}}">Done</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{addOpen}}" hint-placeholder-val="{{false}}">
+    <div class="dialog-backdrop" style="z-index: 50;" onClick="{{closeAdd}}">
+      <div class="dialog" onClick="{{eatClick}}">
+        <div class="dialog-title">New op</div>
+        <div class="dialog-body" style="margin: 0;">Start it easy. You can make it harder once it holds 85.</div>
+        <div class="field">
+          <label>Op name</label>
+          <input class="input" value="{{addName}}" onChange="{{setAddName}}" placeholder="e.g. Walk 10 min">
+        </div>
+        <div class="field">
+          <label>Note — optional</label>
+          <input class="input" value="{{addNote}}" onChange="{{setAddNote}}" placeholder="e.g. mwf">
+        </div>
+        <div>
+          <div style="font-size: 12px; color: var(--color-neutral-700); margin-bottom: 5px;">Colour tag</div>
+          <div style="display: flex; gap: 6px;">
+            <sc-for list="{{addSwatches}}" as="sw" hint-placeholder-count="5">
+              <button style="all: unset; box-sizing: border-box; width: 24px; height: 24px; cursor: pointer; background: {{sw.c}}; outline: {{sw.ring}}; outline-offset: 2px;" onClick="{{sw.pick}}"></button>
+            </sc-for>
+          </div>
+        </div>
+        <div class="dialog-actions" style="margin: 0;">
+          <button class="btn btn-secondary" onClick="{{closeAdd}}">Cancel</button>
+          <button class="btn btn-primary" onClick="{{submitAdd}}">Add it</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;defaultWindow&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;Roll 7&quot;, &quot;options&quot;: [&quot;Today&quot;, &quot;Roll 7&quot;, &quot;Roll 28&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Matrix&quot;}, &quot;showFuture&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Matrix&quot;}, &quot;weekendShading&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Matrix&quot;}, &quot;sampleData&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Data&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    let th = 'dark'; try { th = localStorage.getItem('wm-theme') || 'dark'; } catch (e) {}
+    this._theme = th;
+    let user = null; try { user = JSON.parse(localStorage.getItem('wm-user')); } catch (e) {}
+    let ops = null, entries = null;
+    try { ops = JSON.parse(localStorage.getItem('wm-ops')); } catch (e) {}
+    try { entries = JSON.parse(localStorage.getItem('wm-entries')); } catch (e) {}
+    this._stored = Array.isArray(ops) && ops.length > 0;
+    if (!this._stored && (props.sampleData ?? true)) {
+      const s = this.sample(); ops = s.ops; entries = s.entries;
+      if (!user) user = { name: 'John', email: 'john@example.com', start: this.iso(this.addDays(this.mid(new Date()), -60)) };
+    }
+    this.state = { user, ops: ops || [], entries: entries || {}, win: null, menu: null, share: false, depth: 'summary', copied: false, add: null, arch: null, del: null, account: false };
+  }
+  // PROTOTYPE SEAM: generated sample ops/entries. Production: load from Supabase (ops, entries tables).
+  sample() {
+    const SW = this.tagSwatches();
+    const ops = [
+      { id: 'o1', name: 'Wake 05:30', tag: SW[0], note: '' }, { id: 'o2', name: 'Gym', tag: SW[0], note: 'mwf' },
+      { id: 'o3', name: 'Meditate 10m', tag: SW[0], note: '' }, { id: 'o4', name: 'Deep work 2h', tag: SW[1], note: '' },
+      { id: 'o5', name: 'Walk 10k', tag: SW[1], note: '' }, { id: 'o6', name: 'No sugar', tag: SW[1], note: '' },
+      { id: 'o7', name: 'Journal', tag: SW[2], note: '' }, { id: 'o8', name: 'Read 20m', tag: SW[2], note: '' }
+    ];
+    const entries = {}, today = this.mid(new Date());
+    for (let i = 1; i <= 60; i++) {
+      const d = this.addDays(today, -i), iso = this.iso(d), wk = d.getDay() === 0 || d.getDay() === 6;
+      entries[iso] = {};
+      ops.forEach(op => {
+        if (wk && (op.id === 'o2' || op.id === 'o4')) { entries[iso][op.id] = 'B'; return; }
+        const r = this.hash(iso + op.id);
+        if (r < 0.8) entries[iso][op.id] = 'W'; else if (r < 0.88) entries[iso][op.id] = 'C'; else if (r < 0.94) entries[iso][op.id] = 'B';
+      });
+    }
+    entries[this.iso(today)] = { o1: 'W', o3: 'W', o4: 'W' };
+    return { ops, entries };
+  }
+  tagSwatches() { return ['#9c36b5', '#3b5bdb', '#6c757d', 'var(--color-text)', '#adb5bd']; }
+  persist() {
+    try {
+      localStorage.setItem('wm-ops', JSON.stringify(this.state.ops));
+      localStorage.setItem('wm-entries', JSON.stringify(this.state.entries));
+      if (this.state.user) localStorage.setItem('wm-user', JSON.stringify(this.state.user));
+    } catch (e) {}
+  }
+  mid(d) { const c = new Date(d); c.setHours(12, 0, 0, 0); return c; }
+  addDays(d, n) { const c = new Date(d); c.setDate(c.getDate() + n); return c; }
+  iso(d) { const p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); }
+  hash(s) { let h = 9; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 387420489); return ((h >>> 8) % 1000) / 1000; }
+  startIso() { return (this.state.user && this.state.user.start) || this.iso(this.mid(new Date())); }
+  activeOn(op, iso) {
+    if (iso < this.startIso()) return false;
+    if (op.archivedFrom && iso >= op.archivedFrom && (!op.resumedFrom || iso < op.resumedFrom)) return false;
+    return true;
+  }
+  colOps() { const t = this.iso(this.mid(new Date())); return this.state.ops.filter(o => this.activeOn(o, t) || (o.archivedFrom && o.archivedFrom > t)); }
+  archivedNow() { const t = this.iso(this.mid(new Date())); return this.state.ops.filter(o => !this.activeOn(o, t) && !(o.archivedFrom && o.archivedFrom > t)); }
+  dailyScore(iso) {
+    if (iso < this.startIso()) return null;
+    const e = this.state.entries[iso] || {};
+    const ops = this.state.ops.filter(o => this.activeOn(o, iso));
+    let wins = 0, byes = 0;
+    ops.forEach(o => { if (e[o.id] === 'W') wins++; else if (e[o.id] === 'B') byes++; });
+    const den = ops.length - byes;
+    return den <= 0 ? null : wins / den * 100;
+  }
+  winDates(len, end) { const a = []; for (let i = 0; i < len; i++) a.push(this.iso(this.addDays(end, -i))); return a; }
+  windowReady(len) { const oldest = this.iso(this.addDays(this.mid(new Date()), -len)); return this.startIso() <= oldest; }
+  overallAvg(len) {
+    if (!this.windowReady(len)) return null;
+    const y = this.addDays(this.mid(new Date()), -1);
+    const s = this.winDates(len, y).map(d => this.dailyScore(d)).filter(v => v !== null);
+    return s.length ? s.reduce((a, b) => a + b, 0) / s.length : null;
+  }
+  opAvg(op, isos) {
+    const act = isos.filter(d => this.activeOn(op, d));
+    if (!act.length) return null;
+    let wins = 0, byes = 0;
+    act.forEach(d => { const v = (this.state.entries[d] || {})[op.id]; if (v === 'W') wins++; else if (v === 'B') byes++; });
+    const den = act.length - byes;
+    return den <= 0 ? null : wins / den * 100;
+  }
+  setEntry(iso, opId, v) {
+    this.setState(s => {
+      const day = { ...(s.entries[iso] || {}) };
+      if (v) day[opId] = v; else delete day[opId];
+      return { entries: { ...s.entries, [iso]: day } };
+    }, () => this.persist());
+  }
+  componentDidMount() { this._up = () => { this._paint = undefined; }; window.addEventListener('mouseup', this._up); setTimeout(() => this.scrollToToday(), 60); document.body.dataset.theme = this._theme; }
+  scrollToToday() { if (this._sc) this._sc.scrollTop = this._sc.scrollHeight; }
+  componentWillUnmount() { window.removeEventListener('mouseup', this._up); }
+  scoreColor(v) { return v === null ? 'var(--color-neutral-500)' : v >= 85 ? 'var(--score-good)' : 'var(--score-bad)'; }
+  fmtScore(v) { return v === null ? '—' : String(Math.round(v)); }
+  renderVals() {
+    const HDR = 132, AVGH = 34;
+    const ST = { W: { bg: '#2fb344', fg: '#0c2a12', name: 'WIN' }, C: { bg: '#f59f00', fg: '#231803', name: 'CHANGE — make it easier or remove it' }, B: { bg: '#17a2b8', fg: '#062a30', name: 'BYE — not required' } };
+    const today = this.mid(new Date()), todayIso = this.iso(today);
+    const win = this.state.win ?? ({ 'Today': 'r1', 'Roll 7': 'r7', 'Roll 28': 'r28' }[this.props.defaultWindow] ?? 'r7');
+    const weekendShading = this.props.weekendShading ?? true;
+    const showFuture = this.props.showFuture ?? true;
+    let dates = [];
+    if (win === 'r1') dates = [today];
+    else if (win === 'r7') { for (let i = 0; i < 7; i++) dates.push(this.addDays(today, -i)); }
+    else { for (let i = 0; i < 28; i++) dates.push(this.addDays(today, -i)); }
+    dates = dates.filter(d => this.iso(d) >= this.startIso());
+    dates.sort((a, b) => a - b);
+    if (showFuture && win !== 'r1') dates = [...dates, this.addDays(today, 1), this.addDays(today, 2)];
+    const ops = this.colOps();
+    const cycle = (cur, future) => future ? (cur === 'B' ? '' : 'B') : ({ '': 'W', W: 'C', C: 'B', B: '' }[cur || '']);
+    const DOW = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'], MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const rows = dates.map(d => {
+      const dIso = this.iso(d), isToday = dIso === todayIso, future = d > today, wknd = d.getDay() === 0 || d.getDay() === 6;
+      const sc = future ? null : this.dailyScore(dIso);
+      const cells = ops.map(op => {
+        const active = this.activeOn(op, dIso);
+        const cur = active ? ((this.state.entries[dIso] || {})[op.id] || '') : '';
+        const st = ST[cur];
+        const apply = v => this.setEntry(dIso, op.id, v);
+        return {
+          key: dIso + op.id, label: active ? cur : '·',
+          bg: st ? st.bg : 'transparent', fg: st ? st.fg : active ? 'var(--color-text)' : 'var(--color-neutral-500)',
+          edge: st || !active ? 'none' : 'inset 0 0 0 1px color-mix(in srgb, var(--color-text) 15%, transparent)',
+          cursor: active ? 'pointer' : 'default', dim: active ? '1' : '0.4',
+          title: op.name + (op.note ? ' (' + op.note + ')' : '') + ' · ' + d.getDate() + ' ' + MON[d.getMonth()] + (!active ? ' — not active this day' : st ? ' — ' + st.name : future ? ' — click to plan a Bye' : ' — untracked'),
+          down: e => { if (!active) return; e.preventDefault(); const nx = cycle(cur, future); this._paint = { v: nx, future }; apply(nx); },
+          enter: () => { if (active && this._paint !== undefined && this._paint.future === future) apply(this._paint.v); }
+        };
+      });
+      return {
+        key: dIso, dow: DOW[d.getDay()], dateLabel: d.getDate() + ' ' + MON[d.getMonth()],
+        dowC: isToday ? 'var(--color-accent)' : wknd ? 'var(--color-neutral-500)' : 'var(--color-text)',
+        badge: isToday ? 'TODAY' : future ? 'PLAN' : '',
+        bg: isToday ? 'var(--tint-today)' : (wknd && weekendShading) ? 'var(--color-surface)' : 'transparent',
+        edge: isToday ? 'inset 3px 0 0 var(--color-accent)' : 'none',
+        dim: future ? '0.55' : '1',
+        score: future ? '' : this.fmtScore(sc), scoreC: this.scoreColor(sc), cells
+      };
+    });
+    const yesterday = this.addDays(today, -1);
+    const mkAvgRow = (label, len, total, rule) => ({
+      key: label, label, rule,
+      cells: ops.map(op => { const v = this.windowReady(len) ? this.opAvg(op, this.winDates(len, yesterday)) : null; return { key: op.id, v: this.fmtScore(v), c: this.scoreColor(v) }; }),
+      total: this.fmtScore(total), totalC: this.scoreColor(total)
+    });
+    const hops = ops.map(op => ({
+      key: op.id, name: op.name, tag: op.tag,
+      title: 'Edit this op' + (op.note ? ' · ' + op.note : ''),
+      menu: e => this.setState({ menu: { id: op.id, x: Math.min(e.clientX - 40, window.innerWidth - 316), y: Math.min(e.clientY + 12, window.innerHeight - 420) } })
+    }));
+    const winOpts = [['r1', 'TODAY'], ['r7', 'ROLL 7'], ['r28', 'ROLL 28']].map(([id, label]) => ({
+      key: id, label, bg: id === win ? 'var(--color-text)' : 'transparent', fg: id === win ? 'var(--color-bg)' : 'var(--color-text)',
+      pick: () => this.setState({ win: id }, () => this.scrollToToday())
+    }));
+    const SW = this.tagSwatches();
+    const menu = this.state.menu, mOp = menu && this.state.ops.find(o => o.id === menu.id);
+    const mutOps = fn => this.setState(s => ({ ops: fn(s.ops.slice()) }), () => this.persist());
+    const move = dir => { if (!mOp) return; mutOps(a => { const i = a.indexOf(mOp), j = i + dir; if (j >= 0 && j < a.length) { a[i] = a[j]; a[j] = mOp; } return a; }); };
+    const add = this.state.add, arch = this.state.arch, del = this.state.del;
+    const mkSwatches = (sel, pick) => SW.map(c => ({ key: c, c, ring: c === sel ? '2px solid var(--color-accent)' : 'none', pick: () => pick(c) }));
+    const t = this.dailyScore(todayIso), a7 = this.overallAvg(7), a28 = this.overallAvg(28);
+    const u = this.state.user;
+    const archOp = arch && this.state.ops.find(o => o.id === arch.id);
+    const delOp = del && this.state.ops.find(o => o.id === del.id);
+    return {
+      gridCols: '150px 90px repeat(' + ops.length + ', 46px)',
+      scrollRef: el => { this._sc = el; },
+      noOps: ops.length === 0, hasOps: ops.length > 0,
+      signedIn: !!u, signedOut: !u,
+      userName: u ? u.name : '', userEmail: u ? u.email : '', userStart: u ? u.start : '',
+      accountOpen: this.state.account,
+      toggleAccount: () => this.setState(s => ({ account: !s.account })),
+      closeAccount: () => this.setState({ account: false }),
+      renameUser: e => this.setState(s => ({ user: { ...s.user, name: e.target.value } }), () => this.persist()),
+      setStart: e => this.setState(s => ({ user: { ...s.user, start: e.target.value } }), () => this.persist()),
+      logout: () => { try { localStorage.removeItem('wm-user'); } catch (e) {} window.location.href = './Login.dc.html'; },
+      themeLabel: this._theme === 'dark' ? 'Light' : 'Dark',
+      toggleTheme: () => { this._theme = this._theme === 'dark' ? 'light' : 'dark'; document.body.dataset.theme = this._theme; try { localStorage.setItem('wm-theme', this._theme); } catch (e) {} this.forceUpdate(); },
+      statToday: { v: this.fmtScore(t), c: this.scoreColor(t) },
+      stat7: { v: this.fmtScore(a7), c: this.scoreColor(a7) },
+      stat28: { v: this.fmtScore(a28), c: this.scoreColor(a28) },
+      winOpts, hops, rows,
+      avgRows: [{ ...mkAvgRow('7-day avg', 7, a7, '1px solid color-mix(in srgb, var(--color-text) 8%, transparent)'), top: HDR }, { ...mkAvgRow('28-day avg', 28, a28, '2px solid var(--color-divider)'), top: HDR + AVGH + 1 }],
+      hasArchived: this.archivedNow().length > 0,
+      archived: this.archivedNow().map(o => ({ key: o.id, name: o.name, restore: () => this.setState({ arch: { id: o.id, mode: 'restore', date: todayIso } }) })),
+      menuOpen: !!mOp, menuX: menu ? menu.x : 0, menuY: menu ? menu.y : 0,
+      menuName: mOp ? mOp.name : '', menuNote: mOp ? (mOp.note || '') : '',
+      renameOp: e => mutOps(a => (a.find(o => o.id === menu.id).name = e.target.value, a)),
+      noteOp: e => mutOps(a => (a.find(o => o.id === menu.id).note = e.target.value, a)),
+      swatches: mkSwatches(mOp && mOp.tag, c => mutOps(a => (a.find(o => o.id === menu.id).tag = c, a))),
+      moveL: () => move(-1), moveR: () => move(1),
+      openArchive: () => this.setState({ arch: { id: menu.id, mode: 'archive', date: todayIso }, menu: null }),
+      openDelete: () => this.setState({ del: { id: menu.id }, menu: null }),
+      closeMenu: () => this.setState({ menu: null }),
+      archOpen: !!archOp,
+      archTitle: archOp ? (arch.mode === 'archive' ? 'Archive ' + archOp.name : 'Restore ' + archOp.name) : '',
+      archBody: arch && arch.mode === 'archive' ? 'Pick any date — past or future.' : 'Pick the date it comes back.',
+      archAction: arch && arch.mode === 'archive' ? 'Archive' : 'Restore',
+      archDate: arch ? arch.date : todayIso,
+      setArchDate: e => this.setState(s => ({ arch: { ...s.arch, date: e.target.value } })),
+      confirmArch: () => {
+        const a = this.state.arch; if (!a || !a.date) return;
+        mutOps(list => { const o = list.find(x => x.id === a.id); if (a.mode === 'archive') { o.archivedFrom = a.date; o.resumedFrom = null; } else { o.resumedFrom = a.date; } return list; });
+        this.setState({ arch: null });
+      },
+      closeArch: () => this.setState({ arch: null }),
+      delOpen: !!delOp, delName: delOp ? delOp.name : '',
+      confirmDel: () => { mutOps(a => a.filter(o => o.id !== del.id)); this.setState({ del: null }); },
+      closeDel: () => this.setState({ del: null }),
+      openAdd: () => this.setState({ add: { name: '', note: '', color: SW[1] } }),
+      closeAdd: () => this.setState({ add: null }),
+      addOpen: !!add, addName: add ? add.name : '', addNote: add ? add.note : '',
+      setAddName: e => this.setState(s => ({ add: { ...s.add, name: e.target.value } })),
+      setAddNote: e => this.setState(s => ({ add: { ...s.add, note: e.target.value } })),
+      addSwatches: mkSwatches(add && add.color, c => this.setState(s => ({ add: { ...s.add, color: c } }))),
+      submitAdd: () => { if (!add || !add.name.trim()) return; mutOps(a => (a.push({ id: 'o' + Date.now(), name: add.name.trim(), note: add.note.trim(), tag: add.color }), a)); this.setState({ add: null }); },
+      shareOpen: this.state.share,
+      shareUrl: 'winmatrix.app/s/' + (u ? u.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'me') + '-7f3k2',
+      openShare: () => this.setState({ share: true, copied: false, account: false }),
+      closeShare: () => this.setState({ share: false }),
+      eatClick: e => e.stopPropagation(),
+      depthSummaryBorder: this.state.depth === 'summary' ? 'var(--color-accent)' : 'var(--color-divider)',
+      depthFullBorder: this.state.depth === 'full' ? 'var(--color-accent)' : 'var(--color-divider)',
+      pickSummary: () => this.setState({ depth: 'summary' }),
+      pickFull: () => this.setState({ depth: 'full' }),
+      copyLabel: this.state.copied ? 'Copied' : 'Copy link',
+      copyLink: () => { try { navigator.clipboard.writeText('https://winmatrix.app/s/me-7f3k2'); } catch (e) {} this.setState({ copied: true }); },
+      true: true, false: false
+    };
+  }
+}
+</script>
+</body>
+</html>
