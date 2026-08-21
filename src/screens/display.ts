@@ -172,7 +172,9 @@ async function refresh(): Promise<void> {
     for (const b of snap.boards) if (prev.has(b.ownerId) && prev.get(b.ownerId) !== JSON.stringify(b.scores)) { S.flash[b.ownerId] = now; window.setTimeout(render, 5200) }
     S.snap = snap; S.error = null
   } catch (e) {
-    S.error = !/not found/i.test(String(e)) ? (e instanceof Error ? e.message : String(e)) : publicToken ? "This page isn't shared right now." : 'This display link is not valid. Open the display from the scoreboard composer.'
+    // Supabase errors are plain objects, not Error instances: read .message before falling back to String().
+    const msg = String((e as { message?: string } | null)?.message ?? e)
+    S.error = !/not found/i.test(msg) ? msg : publicToken ? "This page isn't shared right now - the owner's Public page is Off, or their sharing is paused." : 'This display link is not valid. Open the display from the scoreboard composer.'
   }
   render()
 }
