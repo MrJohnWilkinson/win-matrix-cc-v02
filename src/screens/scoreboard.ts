@@ -196,5 +196,13 @@ void (async () => {
   if (JSON.stringify(S.items) !== JSON.stringify(saved)) void saveBoardConfig(profile.id, S.items)
   render()
   // Live: the preview's numbers follow other people's writes.
-  subscribeScores(shared.map((b) => b.ownerId), (e) => { const b = S.shared.find((x) => x.ownerId === e.ownerId); if (b) { b.scores[e.day] = e.score; render() } })
+  let refetch: number | undefined
+  subscribeScores(shared.map((b) => b.ownerId), (e) => {
+    const b = S.shared.find((x) => x.ownerId === e.ownerId)
+    if (!b) return
+    b.scores[e.day] = e.score
+    render()
+    // Full-grid boards compute from the grid itself; pull it again behind the broadcast (debounced).
+    if (b.ops !== null) { window.clearTimeout(refetch); refetch = window.setTimeout(() => void loadSharedBoards(profile.id).then((fresh) => { S.shared = fresh; render() }), 600) }
+  })
 })().catch((e) => { root.innerHTML = `<div class="empty"><h2>Could not load</h2><p class="error">${String(e?.message ?? e)}</p></div>` })

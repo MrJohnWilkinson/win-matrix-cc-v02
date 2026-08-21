@@ -269,9 +269,9 @@ export type Database = {
       claim_share: {
         Args: { p_token: string }
         Returns: {
-          depth: string
-          owner_id: string
-          owner_name: string
+          grant_depth: string
+          grant_owner_id: string
+          grant_owner_name: string
         }[]
       }
       display_snapshot: { Args: { p_token: string }; Returns: Json }

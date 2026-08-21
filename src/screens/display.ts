@@ -37,6 +37,7 @@ try { stored = parseFloat(localStorage.getItem(SCALE_KEY) ?? '1') || 1 } catch {
 const S: State = { snap: null, today: todayIso(), scale: Math.min(2.2, Math.max(0.6, stored)), ctl: false, flash: {}, error: null }
 let ctlTimer: number | undefined
 let unsubscribe: (() => void) | null = null
+let refetchTimer: number | undefined
 
 function shown(): { item: BoardItem; board: DisplaySnapshot['boards'][number] }[] {
   if (!S.snap) return []
@@ -177,6 +178,8 @@ async function refresh(): Promise<void> {
       S.flash[e.ownerId] = Date.now()
       render()
       window.setTimeout(render, 5200) // clear the ring
+      // Full-grid boards render from ops + entries, so fetch the grid behind the score (debounced).
+      if (b.ops !== null) { window.clearTimeout(refetchTimer); refetchTimer = window.setTimeout(() => void refresh(), 600) }
     })
   } catch (e) {
     S.error = /not found/i.test(String(e)) ? 'This display link is not valid. Open the display from the scoreboard composer.' : (e instanceof Error ? e.message : String(e))

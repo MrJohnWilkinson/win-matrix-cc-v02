@@ -59,6 +59,8 @@ export function delegate(root: HTMLElement, type: string, handlers: Record<strin
   root.addEventListener(type, (ev) => {
     const el = (ev.target as HTMLElement | null)?.closest<HTMLElement>('[data-act]')
     if (!el || !root.contains(el)) return
+    // A backdrop's action fires only on the backdrop itself; clicks inside the dialog it holds are not dismissals.
+    if (el.classList.contains('dialog-backdrop') && ev.target !== el) return
     const fn = handlers[el.dataset.act!]
     if (fn) fn(el, ev)
   })

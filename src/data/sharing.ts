@@ -41,7 +41,7 @@ export async function claimShare(token: string): Promise<{ ownerId: string; owne
   if (error) throw error
   const row = data[0]
   if (!row) throw new Error('Claim returned no grant')
-  return { ownerId: row.owner_id, ownerName: row.owner_name, depth: row.depth as ShareDepth }
+  return { ownerId: row.grant_owner_id, ownerName: row.grant_owner_name, depth: row.grant_depth as ShareDepth }
 }
 
 /** Grants where I am the viewer: the boards available to my composer. */

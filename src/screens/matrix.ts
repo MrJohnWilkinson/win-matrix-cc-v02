@@ -201,7 +201,7 @@ function archView(): Html {
   const archive = a.mode === 'archive'
   return html`
     <div class="dialog-backdrop" data-act="close-arch">
-      <div class="dialog" data-act="noop">
+      <div class="dialog">
         <div class="dialog-title">${archive ? 'Archive' : 'Restore'} ${op.name}</div>
         <div class="dialog-body">${archive ? 'Pick any date — past or future.' : 'Pick the date it comes back.'} Scores respect the dates — history before the change stays counted.</div>
         <div class="field"><label>Effective from</label><input class="input" type="date" data-act="arch-date" data-key="arch-date" value="${a.date}"></div>
@@ -218,7 +218,7 @@ function delView(): Html {
   if (!op) return html``
   return html`
     <div class="dialog-backdrop" data-act="close-del">
-      <div class="dialog" data-act="noop">
+      <div class="dialog">
         <div class="dialog-title">Delete ${op.name}?</div>
         <div class="dialog-body">Deleting removes the op and its whole history, and past scores recompute. Archiving keeps history — usually the better move.</div>
         <div class="dialog-actions">
@@ -238,13 +238,13 @@ function shareView(): Html {
     </button>`
   return html`
     <div class="dialog-backdrop" data-act="close-share">
-      <div class="dialog" data-act="noop">
+      <div class="dialog">
         <div class="dialog-title">Share your score</div>
         <div class="dialog-body">Anyone with the link signs in to view. Choose how much they see.</div>
         ${opt('summary', 'Summary scores', 'Today, 7-day, 28-day and the last 7 daily scores')}
         ${opt('full', 'Full grid', 'Every op, every day — the whole matrix')}
         <div style="display: flex; gap: 8px; align-items: center;">
-          <input class="input" readonly value="${sh.url ?? 'Preparing link…'}" style="flex: 1;" data-act="noop">
+          <input class="input" readonly value="${sh.url ?? 'Preparing link…'}" style="flex: 1;">
           <button class="btn btn-primary" data-act="copy-link" ${sh.url ? '' : 'disabled'}>${sh.copied ? 'Copied' : 'Copy link'}</button>
         </div>
         <div class="dialog-actions"><button class="btn btn-secondary" data-act="close-share">Done</button></div>
@@ -336,7 +336,6 @@ delegate(root, 'click', {
   'close-share': () => { S.share = null; render() },
   'share-depth': (el) => { if (!S.share) return; S.share.depth = el.dataset.depth as ShareDepth; S.share.url = null; S.share.copied = false; render(); void refreshShareUrl() },
   'copy-link': () => { if (!S.share?.url) return; void navigator.clipboard?.writeText(S.share.url); S.share.copied = true; render() },
-  noop: (_, ev) => ev.stopPropagation(),
 })
 
 async function refreshShareUrl(): Promise<void> {
@@ -347,13 +346,6 @@ async function refreshShareUrl(): Promise<void> {
     if (S.share && S.share.depth === depth) { S.share.url = shareUrl(link.token); render() }
   } catch (e) { S.error = e instanceof Error ? e.message : String(e); render() }
 }
-
-// Dialog backdrops close on click, but clicks inside the dialog must not bubble to them.
-root.addEventListener('click', (ev) => {
-  const inDialog = (ev.target as HTMLElement).closest('.dialog')
-  const backdrop = (ev.target as HTMLElement).closest<HTMLElement>('.dialog-backdrop')
-  if (inDialog && backdrop && ev.target !== backdrop) ev.stopImmediatePropagation()
-}, true)
 
 delegate(root, 'change', {
   'rename-user': (el) => void run(async () => { const name = (el as HTMLInputElement).value.trim() || S.profile.name; S.profile.name = name; await updateProfile(S.profile.id, { name }) }),
