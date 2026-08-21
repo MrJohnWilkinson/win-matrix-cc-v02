@@ -1,6 +1,6 @@
 # CLAUDE.md - Win Matrix implementation
 
-(Design project's `CLAUDE.md`, identical to its `AGENTS.md`; stored here under another name so it is not auto-loaded. The repo root `CLAUDE.md` R1-R8 governs this repo. Pulled via the Claude Design MCP.)
+(Design project's `CLAUDE.md`, identical to its `AGENTS.md`; stored here under another name so it is not auto-loaded. The repo root `CLAUDE.md` R1-R8 governs this repo. From the 2026-08-21_2330 bundle.)
 
 CLAUDE.md and AGENTS.md are identical copies (Claude Code reads one, Codex the other). Any edit to one applies to both.
 
@@ -31,7 +31,7 @@ Instructions for the agent implementing this handoff. Rewritten 2026-08-21 (Q28 
 - Every `PROTOTYPE SEAM` comment marks fake behaviour; replace each per PROJECT-RECORD's seams section.
 - `wm-theme` and `wm-display-scale` stay in localStorage (per-device); all other wm-* data moves to Supabase per the mapping.
 - 85-rule copy is exactly "make it easier or remove it".
-- Follow PROJECT-RECORD's handoff notes: hoist W/C/B hexes to tokens, Lucide icons for glyph buttons, keep the focus-visible ring.
+- Follow PROJECT-RECORD's handoff notes: hoist W/C/B hexes to tokens, keep the focus-visible ring. Text glyphs stay - no icon package (R6/Q28). Auth is email + password, not magic link (C1).
 
 ## Working with John
 

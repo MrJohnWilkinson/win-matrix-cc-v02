@@ -220,20 +220,50 @@ a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
 
   <sc-if value="{{shareOpen}}" hint-placeholder-val="{{false}}">
     <div class="dialog-backdrop" style="z-index: 50;" onClick="{{closeShare}}">
-      <div class="dialog" onClick="{{eatClick}}">
-        <div class="dialog-title">Share your score</div>
-        <div class="dialog-body" style="margin: 0;">Anyone with the link signs in to view. Choose how much they see.</div>
-        <button style="all: unset; box-sizing: border-box; display: block; padding: 12px; border: 2px solid {{depthSummaryBorder}}; cursor: pointer;" onClick="{{pickSummary}}">
-          <span style="font: 800 13px var(--font-heading); display: block;">Summary scores</span>
-          <span style="font-size: 12px; color: var(--color-neutral-700);">Today, 7-day, 28-day and the last 7 daily scores</span>
-        </button>
-        <button style="all: unset; box-sizing: border-box; display: block; padding: 12px; border: 2px solid {{depthFullBorder}}; cursor: pointer;" onClick="{{pickFull}}">
-          <span style="font: 800 13px var(--font-heading); display: block;">Full grid</span>
-          <span style="font-size: 12px; color: var(--color-neutral-700);">Every op, every day — the whole matrix</span>
-        </button>
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <input class="input" value="{{shareUrl}}" readOnly="{{true}}" style="flex: 1;">
-          <button class="btn btn-primary" onClick="{{copyLink}}">{{copyLabel}}</button>
+      <div class="dialog" onClick="{{eatClick}}" style="width: 640px; max-width: calc(100vw - 48px); max-height: calc(100vh - 64px); overflow: auto;">
+        <div class="dialog-title">Sharing</div>
+        <div style="display: flex; align-items: center; gap: 14px; padding: 12px 14px; border: 2px solid {{pauseBorder}};">
+          <div style="flex: 1; min-width: 0;">
+            <div style="font: 800 13px var(--font-heading);">{{pauseTitle}}</div>
+            <div style="font-size: 12px; color: var(--color-neutral-700); text-wrap: pretty;">{{pauseSub}}</div>
+          </div>
+          <div style="display: inline-flex; border: 1px solid var(--color-divider); flex: none;">
+            <sc-for list="{{pauseOpts}}" as="p" hint-placeholder-count="2">
+              <button style="all: unset; box-sizing: border-box; padding: 7px 12px; font: 600 11px var(--font-heading); letter-spacing: 0.05em; cursor: pointer; border-right: 1px solid var(--color-divider); background: {{p.bg}}; color: {{p.fg}};" onClick="{{p.pick}}">{{p.label}}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div>
+          <div style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-neutral-600); margin-bottom: 8px;">Invite link</div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input class="input" value="{{shareUrl}}" readOnly="{{true}}" style="flex: 1;">
+            <button class="btn btn-primary" onClick="{{copyLink}}">{{copyLabel}}</button>
+            <button class="btn btn-secondary" onClick="{{resetLink}}" title="New link — the old one stops working">Reset</button>
+          </div>
+          <ul style="margin: 10px 0 0; padding-left: 16px; font-size: 12px; line-height: 1.6; color: var(--color-neutral-700);">
+            <li>Anyone with this link signs in and joins your list below, at Summary.</li>
+            <li>Reset makes a new link — the old one stops working.</li>
+            <li>People already on your list keep access — set them Off below.</li>
+          </ul>
+        </div>
+        <div style="opacity: {{listDim}};">
+          <div style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-neutral-600); padding-bottom: 8px; border-bottom: 2px solid var(--color-divider);">Who sees your board</div>
+          <sc-for list="{{shareRows}}" as="r" hint-placeholder-count="5">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--color-divider);">
+              <div style="flex: 1; min-width: 0; opacity: {{r.dim}};">
+                <div style="font: 700 13px var(--font-heading);">{{r.name}}</div>
+                <div style="font-size: 11px; color: var(--color-neutral-600);">{{r.sub}}</div>
+              </div>
+              <sc-if value="{{r.showCopy}}" hint-placeholder-val="{{false}}">
+                <button class="btn btn-ghost" style="flex: none;" onClick="{{r.copy}}">{{r.copyLabel}}</button>
+              </sc-if>
+              <div style="display: inline-flex; border: 1px solid var(--color-divider); flex: none;">
+                <sc-for list="{{r.opts}}" as="o" hint-placeholder-count="3">
+                  <button style="all: unset; box-sizing: border-box; padding: 6px 10px; font: 600 11px var(--font-heading); letter-spacing: 0.05em; cursor: pointer; border-right: 1px solid var(--color-divider); background: {{o.bg}}; color: {{o.fg}};" onClick="{{o.pick}}">{{o.label}}</button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
         </div>
         <div class="dialog-actions" style="margin: 0;">
           <button class="btn btn-secondary" onClick="{{closeShare}}">Done</button>
@@ -287,7 +317,20 @@ class Component extends DCLogic {
       const s = this.sample(); ops = s.ops; entries = s.entries;
       if (!user) user = { name: 'John', email: 'john@example.com', start: this.iso(this.addDays(this.mid(new Date()), -60)) };
     }
-    this.state = { user, ops: ops || [], entries: entries || {}, win: null, menu: null, share: false, depth: 'summary', copied: false, add: null, arch: null, del: null, account: false };
+    let sharing = null; try { sharing = JSON.parse(localStorage.getItem('wm-sharing')); } catch (e) {}
+    // PROTOTYPE SEAM: sample share grants. Production: share_grants table in Supabase (DC3).
+    if (!sharing) {
+      const j = n => this.iso(this.addDays(this.mid(new Date()), -n));
+      sharing = { paused: false, linkId: '7f3k2', publicId: 'k2p9w', publicDepth: 'off', grants: [
+        { id: 'g1', name: 'Mim', joined: j(54), depth: 'summary' },
+        { id: 'g2', name: 'Rob', joined: j(51), depth: 'full' },
+        { id: 'g3', name: 'Kate', joined: j(38), depth: 'summary' },
+        { id: 'g4', name: 'Dan', joined: j(30), depth: 'summary' },
+        { id: 'g5', name: 'Priya', joined: j(16), depth: 'full' },
+        { id: 'g6', name: 'Sam', joined: j(9), depth: 'off' }
+      ] };
+    }
+    this.state = { user, ops: ops || [], entries: entries || {}, sharing, win: null, menu: null, share: false, copied: false, copiedPub: false, add: null, arch: null, del: null, account: false };
   }
   // PROTOTYPE SEAM: generated sample ops/entries. Production: load from Supabase (ops, entries tables).
   sample() {
@@ -311,12 +354,14 @@ class Component extends DCLogic {
     entries[this.iso(today)] = { o1: 'W', o3: 'W', o4: 'W' };
     return { ops, entries };
   }
-  tagSwatches() { return ['#9c36b5', '#3b5bdb', '#6c757d', 'var(--color-text)', '#adb5bd']; }
+  // Non-semantic tag palette (A5): no W-green, C-amber, Bye-teal or accent red. 9 distinct hues, muted to sit with the Modernist ramps.
+  tagSwatches() { return ['#339af0', '#3b5bdb', '#7048e8', '#9c36b5', '#d6336c', '#f783ac', '#a5673f', '#6c757d', 'var(--color-text)']; }
   persist() {
     try {
       localStorage.setItem('wm-ops', JSON.stringify(this.state.ops));
       localStorage.setItem('wm-entries', JSON.stringify(this.state.entries));
       if (this.state.user) localStorage.setItem('wm-user', JSON.stringify(this.state.user));
+      localStorage.setItem('wm-sharing', JSON.stringify(this.state.sharing));
     } catch (e) {}
   }
   mid(d) { const c = new Date(d); c.setHours(12, 0, 0, 0); return c; }
@@ -367,6 +412,52 @@ class Component extends DCLogic {
   scrollToToday() { if (this._sc) this._sc.scrollTop = this._sc.scrollHeight; }
   componentWillUnmount() { window.removeEventListener('mouseup', this._up); }
   scoreColor(v) { return v === null ? 'var(--color-neutral-500)' : v >= 85 ? 'var(--score-good)' : 'var(--score-bad)'; }
+  shareVals(u, MON) {
+    const sh = this.state.sharing;
+    const slug = u ? u.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'me';
+    const mutSh = fn => this.setState(s => ({ sharing: { ...s.sharing, ...fn(s.sharing) } }), () => this.persist());
+    const fmtJoined = iso => { const d = new Date(iso + 'T12:00'); return 'Joined ' + d.getDate() + ' ' + MON[d.getMonth()]; };
+    const DE = { summary: 'SUMMARY', full: 'FULL', off: 'OFF' };
+    const segOpts = (cur, set) => ['off', 'summary', 'full'].map(k => ({
+      key: k, label: DE[k],
+      bg: k === cur ? (k === 'off' ? 'var(--color-divider)' : 'var(--color-accent)') : 'transparent',
+      fg: k === cur ? (k === 'off' ? 'var(--color-text)' : '#fff') : 'var(--color-neutral-600)',
+      pick: () => set(k)
+    }));
+    const publicUrl = 'winmatrix.app/p/' + slug + '-' + sh.publicId;
+    return {
+      pauseBorder: sh.paused ? 'var(--color-accent)' : 'var(--color-divider)',
+      pauseTitle: sh.paused ? 'Sharing is paused' : 'Pause all sharing',
+      pauseSub: sh.paused ? 'Nobody can see your board right now — it simply disappears from their scoreboards. Everything below is kept.' : 'Go dark for everyone at once. Your list below is kept exactly as it is.',
+      pauseOpts: [['live', 'LIVE'], ['paused', 'PAUSED']].map(([k, label]) => ({
+        key: k, label,
+        bg: (k === 'paused') === sh.paused ? (k === 'paused' ? 'var(--color-accent)' : 'var(--color-text)') : 'transparent',
+        fg: (k === 'paused') === sh.paused ? (k === 'paused' ? '#fff' : 'var(--color-bg)') : 'var(--color-neutral-600)',
+        pick: () => mutSh(() => ({ paused: k === 'paused' }))
+      })),
+      shareUrl: 'winmatrix.app/s/' + slug + '-' + sh.linkId,
+      copyLabel: this.state.copied ? 'Copied' : 'Copy link',
+      copyLink: () => { try { navigator.clipboard.writeText('https://winmatrix.app/s/' + slug + '-' + sh.linkId); } catch (e) {} this.setState({ copied: true }); },
+      resetLink: () => { mutSh(() => ({ linkId: Math.random().toString(36).slice(2, 7) })); this.setState({ copied: false }); },
+      listDim: sh.paused ? '0.45' : '1',
+      shareRows: [
+        {
+          key: 'public', name: 'Public page', dim: sh.publicDepth === 'off' ? '0.5' : '1',
+          sub: sh.publicDepth === 'off' ? 'Anyone with the link — no sign-in needed' : publicUrl,
+          showCopy: sh.publicDepth !== 'off',
+          copyLabel: this.state.copiedPub ? 'Copied' : 'Copy',
+          copy: () => { try { navigator.clipboard.writeText('https://' + publicUrl); } catch (e) {} this.setState({ copiedPub: true }); },
+          opts: segOpts(sh.publicDepth, k => mutSh(() => ({ publicDepth: k })))
+        },
+        ...sh.grants.map(g => ({
+          key: g.id, name: g.name, dim: g.depth === 'off' ? '0.5' : '1',
+          sub: fmtJoined(g.joined),
+          showCopy: false, copyLabel: '', copy: () => {},
+          opts: segOpts(g.depth, k => mutSh(s => ({ grants: s.grants.map(x => x.id === g.id ? { ...x, depth: k } : x) })))
+        }))
+      ]
+    };
+  }
   fmtScore(v) { return v === null ? '—' : String(Math.round(v)); }
   renderVals() {
     const HDR = 132, AVGH = 34;
@@ -491,16 +582,10 @@ class Component extends DCLogic {
       addSwatches: mkSwatches(add && add.color, c => this.setState(s => ({ add: { ...s.add, color: c } }))),
       submitAdd: () => { if (!add || !add.name.trim()) return; mutOps(a => (a.push({ id: 'o' + Date.now(), name: add.name.trim(), note: add.note.trim(), tag: add.color }), a)); this.setState({ add: null }); },
       shareOpen: this.state.share,
-      shareUrl: 'winmatrix.app/s/' + (u ? u.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'me') + '-7f3k2',
-      openShare: () => this.setState({ share: true, copied: false, account: false }),
+      openShare: () => this.setState({ share: true, copied: false, copiedPub: false, account: false }),
       closeShare: () => this.setState({ share: false }),
       eatClick: e => e.stopPropagation(),
-      depthSummaryBorder: this.state.depth === 'summary' ? 'var(--color-accent)' : 'var(--color-divider)',
-      depthFullBorder: this.state.depth === 'full' ? 'var(--color-accent)' : 'var(--color-divider)',
-      pickSummary: () => this.setState({ depth: 'summary' }),
-      pickFull: () => this.setState({ depth: 'full' }),
-      copyLabel: this.state.copied ? 'Copied' : 'Copy link',
-      copyLink: () => { try { navigator.clipboard.writeText('https://winmatrix.app/s/me-7f3k2'); } catch (e) {} this.setState({ copied: true }); },
+      ...this.shareVals(u, MON),
       true: true, false: false
     };
   }

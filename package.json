@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "check": "npm run test && npm run build",
-    "types": "supabase gen types typescript --linked --schema public > src/data/database.types.ts",
+    "types": "npx supabase gen types typescript --linked --schema public > src/data/database.types.ts",
     "seed": "vite-node scripts/seed.ts"
   },
   "engines": { "node": ">=22" },

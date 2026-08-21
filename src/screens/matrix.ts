@@ -7,14 +7,15 @@ import { applyTheme, toggleTheme } from '../ui/theme'
 import { accountMenuView, navView } from '../ui/nav'
 import { ensureProfile, requireSession, signOut, updateProfile } from '../data/auth'
 import { addOp, deleteOp, loadOwn, repairRecent, reorderOps, setEntry, startDateChanged, updateOp, type OwnData } from '../data/store'
-import { getOrCreateShareLink, shareUrl } from '../data/sharing'
-import type { EntryState, IsoDate, Op, Profile, ShareDepth } from '../domain/model'
+import { ensureSharingSettings, getOrCreateInviteLink, loadGrantsForOwner, publicUrl, resetInviteLink, setGrantDepth, setPaused, setPublicDepth, shareUrl, type OwnerGrant, type SharingSettings } from '../data/sharing'
+import type { EntryState, GrantDepth, IsoDate, Op, Profile } from '../domain/model'
 import { addDays, dayOfWeek, isValidIso, isWeekend, todayIso } from '../domain/dates'
 import { archiveFrom, archivesInFuture, isArchivedOn, restoreFrom } from '../domain/archive'
 import { dailyScore, formatScore, isActiveOn, nextState, opAverage, overallAverage, tone, windowDates, windowReady } from '../domain/scoring'
 
 type Win = 'r1' | 'r7' | 'r28'
-const SWATCHES = ['#9c36b5', '#3b5bdb', '#6c757d', 'var(--color-text)', '#adb5bd'] // non-semantic (A5)
+// Non-semantic tag palette (A5): 9 muted hues, never W-green, C-amber, Bye-teal or accent red.
+const SWATCHES = ['#339af0', '#3b5bdb', '#7048e8', '#9c36b5', '#d6336c', '#f783ac', '#a5673f', '#6c757d', 'var(--color-text)']
 const HDR = 132, AVGH = 34
 const DOW = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -31,7 +32,7 @@ interface State {
   add: { name: string; note: string; colour: string } | null
   arch: { id: string; mode: 'archive' | 'restore'; date: IsoDate } | null
   del: string | null
-  share: { depth: ShareDepth; url: string | null; copied: boolean } | null
+  share: { settings: SharingSettings | null; link: string | null; grants: OwnerGrant[]; copied: boolean; copiedPub: boolean } | null
   error: string | null
 }
 
@@ -231,22 +232,53 @@ function delView(): Html {
 
 function shareView(): Html {
   const sh = S.share!
-  const opt = (d: ShareDepth, title: string, body: string) => html`
-    <button data-act="share-depth" data-depth="${d}" style="all: unset; box-sizing: border-box; display: block; padding: 12px; border: 2px solid ${sh.depth === d ? 'var(--color-accent)' : 'var(--color-divider)'}; cursor: pointer;">
-      <span style="font: 800 13px var(--font-heading); display: block;">${title}</span>
-      <span style="font-size: 12px; color: var(--color-neutral-700);">${body}</span>
-    </button>`
+  const st = sh.settings
+  const seg = (act: string, cur: string, keys: readonly (readonly [string, string])[], viewer = '') => html`
+    <div class="seg">${keys.map(([k, lbl]) => html`<button class="seg-btn ${k === cur ? (k === 'off' ? 'seg-on-muted' : k === 'live' ? 'seg-on-ink' : 'seg-on') : ''}" data-act="${act}" data-v="${k}" data-viewer="${viewer}">${lbl}</button>`)}</div>`
+  const DEPTHS = [['off', 'OFF'], ['summary', 'SUMMARY'], ['full', 'FULL']] as const
+  const joined = (iso: string) => { const [, m, d] = iso.slice(0, 10).split('-'); return `Joined ${Number(d)} ${MON[Number(m) - 1]}` }
+  const row = (name: string, sub: string, dim: boolean, copy: Html, control: Html) => html`
+    <div style="display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--color-divider);">
+      <div style="flex: 1; min-width: 0; opacity: ${dim ? '0.5' : '1'};">
+        <div style="font: 700 13px var(--font-heading);">${name}</div>
+        <div style="font-size: 11px; color: var(--color-neutral-600); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${sub}</div>
+      </div>
+      ${copy}${control}
+    </div>`
   return html`
     <div class="dialog-backdrop" data-act="close-share">
-      <div class="dialog">
-        <div class="dialog-title">Share your score</div>
-        <div class="dialog-body">Anyone with the link signs in to view. Choose how much they see.</div>
-        ${opt('summary', 'Summary scores', 'Today, 7-day, 28-day and the last 7 daily scores')}
-        ${opt('full', 'Full grid', 'Every op, every day — the whole matrix')}
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <input class="input" readonly value="${sh.url ?? 'Preparing link…'}" style="flex: 1;">
-          <button class="btn btn-primary" data-act="copy-link" ${sh.url ? '' : 'disabled'}>${sh.copied ? 'Copied' : 'Copy link'}</button>
-        </div>
+      <div class="dialog" style="width: min(640px, 100%); max-height: calc(100vh - 64px); overflow: auto;">
+        <div class="dialog-title">Sharing</div>
+        ${when(!st, () => html`<div class="kicker">Loading…</div>`)}
+        ${when(st, () => { const p = st!.paused, pub = st!.publicDepth, pubUrl = publicUrl(st!.publicToken); return html`
+          <div style="display: flex; align-items: center; gap: 14px; padding: 12px 14px; border: 2px solid ${p ? 'var(--color-accent)' : 'var(--color-divider)'};">
+            <div style="flex: 1; min-width: 0;">
+              <div style="font: 800 13px var(--font-heading);">${p ? 'Sharing is paused' : 'Pause all sharing'}</div>
+              <div style="font-size: 12px; color: var(--color-neutral-700); text-wrap: pretty;">${p ? 'Nobody can see your board right now - it simply disappears from their scoreboards. Everything below is kept.' : 'Go dark for everyone at once. Your list below is kept exactly as it is.'}</div>
+            </div>
+            ${seg('share-pause', p ? 'paused' : 'live', [['live', 'LIVE'], ['paused', 'PAUSED']])}
+          </div>
+          <div>
+            <div class="kicker" style="margin-bottom: 8px;">Invite link</div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input class="input" readonly value="${sh.link ?? 'Preparing link…'}" style="flex: 1;">
+              <button class="btn btn-primary" data-act="copy-link" ${sh.link ? '' : 'disabled'}>${sh.copied ? 'Copied' : 'Copy link'}</button>
+              <button class="btn btn-secondary" data-act="reset-link" title="New link - the old one stops working">Reset</button>
+            </div>
+            <ul style="margin: 10px 0 0; padding-left: 16px; font-size: 12px; line-height: 1.6; color: var(--color-neutral-700);">
+              <li>Anyone with this link signs in and joins your list below, at Summary.</li>
+              <li>Reset makes a new link - the old one stops working.</li>
+              <li>People already on your list keep access - set them Off below.</li>
+            </ul>
+          </div>
+          <div style="opacity: ${p ? '0.45' : '1'};">
+            <div class="kicker" style="padding-bottom: 8px; border-bottom: 2px solid var(--color-divider);">Who sees your board</div>
+            ${row('Public page', pub === 'off' ? 'Anyone with the link - no sign-in needed' : pubUrl, pub === 'off',
+              when(pub !== 'off', () => html`<button class="btn btn-ghost" style="flex: none;" data-act="copy-public">${sh.copiedPub ? 'Copied' : 'Copy'}</button>`),
+              seg('public-depth', pub, DEPTHS))}
+            ${sh.grants.map((g) => row(g.viewerName, joined(g.createdAt), g.depth === 'off', html``, seg('grant-depth', g.depth, DEPTHS, g.viewerId)))}
+            ${when(!sh.grants.length, () => html`<div style="padding: 10px 0; font-size: 12px; color: var(--color-neutral-600);">Nobody yet. Send the invite link above.</div>`)}
+          </div>` })}
         <div class="dialog-actions"><button class="btn btn-secondary" data-act="close-share">Done</button></div>
       </div>
     </div>`
@@ -330,20 +362,28 @@ delegate(root, 'click', {
   'close-del': () => { S.del = null; render() },
   'confirm-del': () => void run(async () => { const id = S.del!; S.del = null; await deleteOp(S.profile.id, S.data, start(), id) }),
   'open-share': () => {
-    S.share = { depth: 'summary', url: null, copied: false }; S.account = false; render()
-    void refreshShareUrl()
+    S.share = { settings: null, link: null, grants: [], copied: false, copiedPub: false }; S.account = false; render()
+    void loadShare()
   },
   'close-share': () => { S.share = null; render() },
-  'share-depth': (el) => { if (!S.share) return; S.share.depth = el.dataset.depth as ShareDepth; S.share.url = null; S.share.copied = false; render(); void refreshShareUrl() },
-  'copy-link': () => { if (!S.share?.url) return; void navigator.clipboard?.writeText(S.share.url); S.share.copied = true; render() },
+  'copy-link': () => { if (!S.share?.link) return; void navigator.clipboard?.writeText(S.share.link); S.share.copied = true; render() },
+  'copy-public': () => { if (!S.share?.settings) return; void navigator.clipboard?.writeText(publicUrl(S.share.settings.publicToken)); S.share.copiedPub = true; render() },
+  'reset-link': () => void run(async () => { const t = await resetInviteLink(S.profile.id); if (S.share) { S.share.link = shareUrl(t); S.share.copied = false } }),
+  'share-pause': (el) => void run(async () => { const paused = el.dataset.v === 'paused'; if (S.share?.settings) S.share.settings.paused = paused; await setPaused(S.profile.id, paused) }),
+  'public-depth': (el) => void run(async () => { const d = el.dataset.v as GrantDepth; if (S.share?.settings) { S.share.settings.publicDepth = d; S.share.copiedPub = false } await setPublicDepth(S.profile.id, d) }),
+  'grant-depth': (el) => void run(async () => {
+    const d = el.dataset.v as GrantDepth, viewer = el.dataset.viewer!
+    const g = S.share?.grants.find((x) => x.viewerId === viewer)
+    if (g) g.depth = d
+    await setGrantDepth(S.profile.id, viewer, d)
+  }),
 })
 
-async function refreshShareUrl(): Promise<void> {
-  if (!S.share) return
-  const depth = S.share.depth
+/** Everything the Sharing dialog shows, fetched together on open. */
+async function loadShare(): Promise<void> {
   try {
-    const link = await getOrCreateShareLink(S.profile.id, depth)
-    if (S.share && S.share.depth === depth) { S.share.url = shareUrl(link.token); render() }
+    const [settings, token, grants] = await Promise.all([ensureSharingSettings(S.profile.id), getOrCreateInviteLink(S.profile.id), loadGrantsForOwner(S.profile.id)])
+    if (S.share) { S.share.settings = settings; S.share.link = shareUrl(token); S.share.grants = grants; render() }
   } catch (e) { S.error = e instanceof Error ? e.message : String(e); render() }
 }
 

@@ -21,7 +21,7 @@ Each day, for each tracked item (an "op"), the user records a state. Wins divide
 
 ## Scoring semantics (verified from the live sheet formulas)
 
-Verified 2026-08-21 by exporting the sheets below and reading every formula, validation rule, and conditional-format rule. Full cell-level detail: project doc `2026-08-21_1406_ops-matrix-app-findings-and-plan.md`.
+Verified 2026-08-21 by exporting the sheets below and reading every formula, validation rule, and conditional-format rule. The cell-level findings doc (2026-08-21_1406) was lost with an interrupted chat; this section plus the live sheets below are the surviving authority.
 
 - Entry codes (sheet): `T` tick/tracking (a win, bright green), `W` winning (a win, green), `B` bye - not required today (blue), `C` change/adjust - not done, signals the plan needs changing (orange), blank - untracked.
 - Daily score = (T + W) / (op count - byes) x 100. `C` and blank count in the denominator but not the numerator.
@@ -82,12 +82,14 @@ Verified 2026-08-21 by exporting the sheets below and reading every formula, val
 
 ### Project docs
 
-- Formula-level findings and cell references: `claude/2026-08-21_1406_ops-matrix-app-findings-and-plan.md` (its "Proposed Supabase app" section is the how, kept separate from this brief on purpose).
+- The formula-level findings doc (`2026-08-21_1406_ops-matrix-app-findings-and-plan.md`) is LOST - do not search for it. Its scoring facts survive in the Scoring semantics section above; its proposed Supabase schema does not survive, so derive the schema from PROJECT-RECORD.md's storage mapping.
 
 ## Open items
 
-- A1: John pauses Supabase project iqpgwghkglromogsbayw.
-- A2: John creates the new free-plan Supabase project and provides access.
+- A1 DONE 2026-08-21: old project iqpgwghkglromogsbayw paused.
+- A2 DONE 2026-08-21: two free-plan implementation projects created, one per build:
+    - Claude Code build: `recordbreaker-matrix-claude-2026-08-21_1852` (ref mzwuxjxtigapyoiqcrta).
+    - Codex build: `win-matrix-v2-codex` (ref xpagxbjjiuudkbwxhpdt).
 
 ## Amendments (2026-08-21 grill session)
 

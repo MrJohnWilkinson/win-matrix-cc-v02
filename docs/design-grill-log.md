@@ -167,7 +167,6 @@ Numbering continues from the lost session (Q1-Q15 in decisions.md).
 - Deleted: uploads/ old bundle (38 files) and the review doc (Q26).
 - Project root now IS the export bundle (Q25); export awaits John.
 
-
 ## 2026-08-21 ~21:06 - Display Imbalance Flagged
 
 - John flagged the single-board display as imbalanced: content pinned hard-left on a full-width tile.
@@ -197,3 +196,42 @@ Numbering continues from the lost session (Q1-Q15 in decisions.md).
 - Contents now: project intent, read order, hard rules (scoring spec, seams, storage split, 85-rule copy, handoff notes), candour + hyphen rules.
 - Dropped: chat bullet grammar, reference codes, grill-session logging duties.
 - Bundle audit complete; export awaits John.
+
+## 2026-08-21 ~22:05 - Q30 Asked and Answered: O2
+
+- Context: John corrected an earlier framing - full-grid access is permission to SEE ops, never to filter them; D7 scopes Not done/Done/Both to the user's own board.
+- Exploration: composer already gates the controls to own board; the display's inMode filter touches others' marks but defaults to Both, so behaviour matches D7.
+- Q30 = O2: leave the code as is; simplicity wins over refactoring an invisible path.
+- Future scope recorded, not built: toggling done/not-done on another person's tile would need a permission model; deliberately avoided for now (PROJECT-RECORD "Not built yet" updated).
+
+## 2026-08-21 ~22:15 - Q31/Q32 Resolved: A1/A2 Done, Two Builds
+
+- Q31: already done before asking - old Supabase project paused, new projects created.
+- Q32: not either/or - the handoff feeds TWO parallel builds: Claude Code (ref mzwuxjxtigapyoiqcrta) and Codex (ref xpagxbjjiuudkbwxhpdt).
+- Brief open items closed with both refs; CLAUDE.md tells each agent to use its own ref only.
+
+## 2026-08-21 ~22:25 - Q33 Answered: O1 - Re-Export Both Builds
+
+- F6: both agents received the bundle before Q27-Q32; worst defect was the old chat-rules CLAUDE.md read as operating instructions.
+- Q33 = O1: John re-exports this project to both builds; each agent re-reads CLAUDE.md, PROJECT-RECORD, and the brief before continuing.
+- This log entry marks the bundle state both re-exports carry.
+
+## 2026-08-21 ~22:35 - Q34 Answered: O2 - Grill Log Ships, Grill Complete
+
+- Q34 = O2: the log stays; its customer is John (interruption insurance), and the read order fences it to "audit trail only" for implementers.
+- Delete pass complete: every shipped file now has a named purpose and customer.
+- Session state: Q16-Q34 resolved; bundle clean; awaiting John's re-export to both builds (Q33 = O1).
+
+## 2026-08-21 ~22:45 - Supersede Note Moved Into CLAUDE.md
+
+- John's correction: the supersede note belongs in the bundle, not in a manual paste.
+- CLAUDE.md now opens with "Bundle version - read first": supersedes the pre-21:00 export, orders a full re-read and diff, revokes the old chat-format rules, lists the superseded specifics.
+- Re-export now needs no accompanying message.
+
+## 2026-08-21 ~22:50 - AGENTS.md Added
+
+- AGENTS.md created as an exact copy of CLAUDE.md so Codex and other harnesses auto-read the same instructions (Codex reads AGENTS.md, Claude Code reads CLAUDE.md).
+- Sync rule: the two files must stay identical; any future edit applies to both.
+
+
+

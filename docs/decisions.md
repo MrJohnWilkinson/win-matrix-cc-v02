@@ -31,12 +31,12 @@ The original grill questions were lost with the interrupted chat; these are infe
 - Q5 superseded by Q13: NO onboarding flow. Matrix opens usable on first login; empty state prompts first op; start date defaults to first login day (D5).
 - Q6/O1: date-based archive per D9 (archivedFrom / resumedFrom spans; scores respect spans).
 - Q7/O1: per-op note field in op menu (DC6 day-one).
-- Q8/O1: share grants list/revoke deferred; dialog copy drops the revoke claim.
+- Q8/O1: share grants list/revoke deferred at the time; SUPERSEDED by the sharing-controls session below - now built.
 - Q9: NOT a prototype — fully usable. All own data persists locally (ops, entries, user, config, theme). Backend = Supabase, set up before coding; sample sharers stand in visually until then.
 - Q10/O1: desktop + wall display; phone deferred.
 - Q11/O1: sample scores move both ways realistically; live flash kept.
 - Q12/O1: composer print copy dropped.
-- Q14/O1: Login page in scope (email magic link); nav shows signed-in name + logout on every page.
+- Q14/O1: Login page in scope; nav shows signed-in name + logout on every page. AMENDED: auth is email + password, not magic link (build grill Q30 = a, deviation C1).
 - Q15/O1: display name edited in nav account menu; defaults from email.
 
 ## Fixes carried from review (A-codes)
@@ -47,8 +47,25 @@ The original grill questions were lost with the interrupted chat; these are infe
 - A8: delete op requires confirm.
 - A9/A10: sticky offsets derived, bloat files excluded.
 
+## Sharing controls (grill session, 2026-08-21 evening)
+
+Model: one standing invite link + People panel in the Share dialog on the matrix.
+
+- S1/O1: per-person control OFF / SUMMARY / FULL (ordered least to most shared); Off = revoked.
+- S2/O1: revoked people stay listed as Off - restoring is one click.
+- S3/O1: reset link is future-only: new URL for new joiners; existing grants keep access (explainer bullets in-dialog).
+- S4/O1: depths stay Summary / Full only (no new tiers).
+- S5/O1: link joiners land at Summary by default.
+- S6/O1: everything lives in the one Share dialog ("Sharing"), opened from the matrix nav button.
+- S7/O1: cut-offs and downgrades are silent - the board vanishes from the viewer's picker and tiles; no tombstone.
+- S8/O2: each row shows the joined date; no last-viewed tracking.
+- S9/O2: master Pause-all switch (LIVE/PAUSED) - hides the board from everyone, keeps every setting.
+- S10/O1: paused = the same silent vanish, everywhere.
+- S11/O1: reset link needs no confirmation (low stakes per S3).
+- S12/O2: public no-login page = pinned first row of the People list, same OFF/SUMMARY/FULL control, off by default, its own URL (independent of the invite link), gated by Pause-all.
+
 ## Storage keys
-`wm-theme`, `wm-user` {name,email,start}, `wm-ops`, `wm-entries`, `wm-board-config`, `wm-display-scale`.
+`wm-theme`, `wm-user` {name,email,start}, `wm-ops`, `wm-entries`, `wm-sharing` {paused,linkId,publicId,publicDepth,grants}, `wm-board-config`, `wm-display-scale`.
 
 ## Screens
 Login.dc.html · Win Matrix.dc.html · Scoreboard.dc.html · Scoreboard Display.dc.html

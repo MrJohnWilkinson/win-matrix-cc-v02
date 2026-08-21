@@ -25,6 +25,8 @@ No UI framework, no router, no state library, no PWA, no IndexedDB, no monorepo 
 ## Conventions
 - Dates are plain `YYYY-MM-DD` strings in the device's local calendar (DC2). Never `Date` objects across module boundaries.
 - Entry states: `W` win, `C` change, `B` bye. Absent = untracked. Nothing else.
+- Grant depth (owner-side, `share_grants.depth` and `sharing_settings.public_depth`): `off` | `summary` | `full`. Viewers never see `off`: every viewer-side read goes through `effective_depth` (null when off or the owner is paused), so cut-offs are silent (S7/S10).
+- One invite link per owner, always joining at Summary (S3/S5); `share_links` has no depth. Reset deletes and re-mints; grants are untouched.
 - Scores: `null` means "no score" (window not full, no active ops). Render `null` as a dash. Never coerce to 0 for display.
 - `daily_scores` is derived. In the app only `recomputeRange` in `src/data/store.ts` writes it; `scripts/seed.ts` writes it from the same engine (`dailyScoresForRange`). `src/data/store.test.ts` proves stored rows equal engine output.
 - Timestamps in docs use `YYYY-MM-DD_HHmm`.

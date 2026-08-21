@@ -6,8 +6,6 @@ export type IsoDate = string
 /** The three recorded states (D6). Absent = untracked. */
 export type EntryState = 'W' | 'C' | 'B'
 
-export const ENTRY_STATES: readonly EntryState[] = ['W', 'C', 'B']
-
 /** A closed or open stretch during which an op is archived (D9). `to` null = still archived. */
 export interface ArchivePeriod {
   from: IsoDate
@@ -33,7 +31,11 @@ export type DailyScores = Record<IsoDate, number | null>
 
 export type ScoreTone = 'good' | 'bad' | 'none'
 
+/** What a viewer may see. Viewers only ever see effective grants (effective_depth). */
 export type ShareDepth = 'summary' | 'full'
+
+/** Owner-side setting per person and for the public page (S1, S12). `off` = revoked, still listed. */
+export type GrantDepth = ShareDepth | 'off'
 
 export interface Profile {
   id: string

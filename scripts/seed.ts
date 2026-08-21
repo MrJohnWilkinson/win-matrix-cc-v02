@@ -81,7 +81,10 @@ async function seed(): Promise<void> {
     { owner_id: mim, viewer_id: rob, depth: 'full' }, { owner_id: mim, viewer_id: kate, depth: 'summary' },
     { owner_id: rob, viewer_id: mim, depth: 'summary' }, { owner_id: kate, viewer_id: mim, depth: 'full' },
   ]))
-  await must(admin.from('share_links').upsert([{ token: 'seed-mim-summary-link', owner_id: mim, depth: 'summary' }, { token: 'seed-rob-full-link-0001', owner_id: rob, depth: 'full' }]))
+  // Rob once shared with Kate and set her Off (S2: stays listed). Mim's public page is on at Summary (S12).
+  await must(admin.from('share_grants').upsert([{ owner_id: rob, viewer_id: kate, depth: 'off' }]))
+  await must(admin.from('share_links').upsert([{ token: 'seed-mim-summary-link', owner_id: mim }, { token: 'seed-rob-full-link-0001', owner_id: rob }]))
+  await must(admin.from('sharing_settings').upsert([{ owner_id: mim, paused: false, public_token: 'seed-mim-public-000001', public_depth: 'summary' }]))
   await must(admin.from('display_tokens').upsert([{ token: 'seed-mim-display-0001', owner_id: mim }]))
   await must(admin.from('board_config').upsert({ owner_id: mim, items: [
     { ownerId: mim, show: true, featured: true, avg7: true, avg28: true, last7: true, ops: true, mode: 'both' },
@@ -89,7 +92,7 @@ async function seed(): Promise<void> {
     { ownerId: kate, show: true, featured: false, avg7: true, avg28: true, last7: true, ops: true, mode: 'both' },
   ] }))
   console.log(`done. Sign in as any of ${USERS.map((u) => u.email).join(', ')} with the SEED_PASSWORD you set`)
-  console.log('display: display.html?key=seed-mim-display-0001   claim as Kate: scoreboard.html?claim=seed-rob-full-link-0001')
+  console.log('display: display.html?key=seed-mim-display-0001   public: display.html?p=seed-mim-public-000001   claim as Kate: scoreboard.html?claim=seed-rob-full-link-0001')
 }
 
 async function must<T extends { error: { message: string } | null }>(p: PromiseLike<T>): Promise<void> {

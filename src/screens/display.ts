@@ -1,12 +1,12 @@
 // Wall display (Q34): pure glass. Opens by token (`?key=`), no sign-in, no controls until the mouse
-// moves. Tile content centres at every board count (Q27). Swiss modular grid from src/ui/layout; numbers from src/domain/board. Anonymous, so no
+// moves. The same page is the public page (S12) when opened with `?p=`: one board, no composer links. Tile content centres at every board count (Q27). Swiss modular grid from src/ui/layout; numbers from src/domain/board. Anonymous, so no
 // private realtime channel: a 10s poll of display_snapshot keeps it current. Visuals follow docs/design/Scoreboard Display.dc.html.
 
 import '../theme.css'
 import { delegate, html, renderInto, when, type Html } from '../ui/render'
 import { applyTheme, themeLabel, toggleTheme } from '../ui/theme'
 import { arrange, type SizeClass } from '../ui/layout'
-import { fetchDisplaySnapshot, type DisplaySnapshot } from '../data/display'
+import { fetchDisplaySnapshot, fetchPublicSnapshot, type DisplaySnapshot } from '../data/display'
 import type { BoardItem, EntryState, IsoDate } from '../domain/model'
 import { todayIso } from '../domain/dates'
 import { boardStats, inMode } from '../domain/board'
@@ -30,7 +30,9 @@ const SIZES: Record<SizeClass, Record<string, number>> = {
 }
 
 const root = document.getElementById('app')!
-const token = new URLSearchParams(location.search).get('key') ?? ''
+const params = new URLSearchParams(location.search)
+const token = params.get('key') ?? ''
+const publicToken = params.get('p') ?? ''
 let stored = 1
 try { stored = parseFloat(localStorage.getItem(SCALE_KEY) ?? '1') || 1 } catch { /* private mode */ }
 const S: State = { snap: null, today: todayIso(), scale: Math.min(2.2, Math.max(0.6, stored)), ctl: false, flash: {}, error: null }
@@ -117,7 +119,7 @@ function view(): Html {
         <div style="background: var(--color-bg); color: var(--color-text); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 48px; gap: 8px;">
           <span class="sq sq-14 sq-accent"></span>
           <div style="font: 800 28px var(--font-heading);">Nothing on display</div>
-          <div style="font-size: 14px; color: var(--color-neutral-600);">Compose your board in the <a href="./scoreboard.html">scoreboard composer</a>.</div>
+          ${when(!publicToken, () => html`<div style="font-size: 14px; color: var(--color-neutral-600);">Compose your board in the <a href="./scoreboard.html">scoreboard composer</a>.</div>`)}
         </div>`)}
       ${when(!S.snap, () => html`<div style="background: var(--color-bg); color: var(--color-text); display: flex; align-items: center; justify-content: center;"><span class="kicker">Loading…</span></div>`)}
       ${when(S.ctl, () => html`
@@ -128,7 +130,7 @@ function view(): Html {
           <button class="ctl ctl-text" data-act="scale-reset" title="Reset to 100%">RESET</button>
           <button class="ctl ctl-text" data-act="theme" title="Switch theme">${themeLabel()}</button>
         </div>
-        <a href="./scoreboard.html" title="Back to the scoreboard composer" style="position: fixed; right: 20px; bottom: 28px; z-index: 60; display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; background: var(--color-elev); border: 1px solid var(--color-divider); box-shadow: var(--shadow-lg); font: 600 11px var(--font-heading); letter-spacing: 0.06em; color: var(--color-neutral-600); text-decoration: none;"><span class="sq sq-8 sq-accent"></span>COMPOSE</a>`)}
+        ${when(!publicToken, () => html`<a href="./scoreboard.html" title="Back to the scoreboard composer" style="position: fixed; right: 20px; bottom: 28px; z-index: 60; display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; background: var(--color-elev); border: 1px solid var(--color-divider); box-shadow: var(--shadow-lg); font: 600 11px var(--font-heading); letter-spacing: 0.06em; color: var(--color-neutral-600); text-decoration: none;"><span class="sq sq-8 sq-accent"></span>COMPOSE</a>`)}`)}
     </div>
     <style>
       @keyframes livepulse { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
@@ -164,13 +166,13 @@ window.addEventListener('resize', render)
 
 async function refresh(): Promise<void> {
   try {
-    const snap = await fetchDisplaySnapshot(token)
+    const snap = publicToken ? await fetchPublicSnapshot(publicToken) : await fetchDisplaySnapshot(token)
     const prev = new Map((S.snap?.boards ?? []).map((b) => [b.ownerId, JSON.stringify(b.scores)]))
     const now = Date.now()
     for (const b of snap.boards) if (prev.has(b.ownerId) && prev.get(b.ownerId) !== JSON.stringify(b.scores)) { S.flash[b.ownerId] = now; window.setTimeout(render, 5200) }
     S.snap = snap; S.error = null
   } catch (e) {
-    S.error = /not found/i.test(String(e)) ? 'This display link is not valid. Open the display from the scoreboard composer.' : (e instanceof Error ? e.message : String(e))
+    S.error = !/not found/i.test(String(e)) ? (e instanceof Error ? e.message : String(e)) : publicToken ? "This page isn't shared right now." : 'This display link is not valid. Open the display from the scoreboard composer.'
   }
   render()
 }
@@ -179,7 +181,7 @@ async function refresh(): Promise<void> {
 
 applyTheme()
 render()
-if (!token) { S.error = 'No display key. Open the display from the scoreboard composer.'; render() }
+if (!token && !publicToken) { S.error = 'No display key. Open the display from the scoreboard composer.'; render() }
 else {
   void refresh()
   setInterval(() => void refresh(), 10_000)

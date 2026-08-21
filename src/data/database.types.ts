@@ -235,19 +235,16 @@ export type Database = {
       share_links: {
         Row: {
           created_at: string
-          depth: string
           owner_id: string
           token: string
         }
         Insert: {
           created_at?: string
-          depth: string
           owner_id: string
           token: string
         }
         Update: {
           created_at?: string
-          depth?: string
           owner_id?: string
           token?: string
         }
@@ -261,11 +258,47 @@ export type Database = {
           },
         ]
       }
+      sharing_settings: {
+        Row: {
+          owner_id: string
+          paused: boolean
+          public_depth: string
+          public_token: string
+          updated_at: string
+        }
+        Insert: {
+          owner_id: string
+          paused?: boolean
+          public_depth?: string
+          public_token: string
+          updated_at?: string
+        }
+        Update: {
+          owner_id?: string
+          paused?: boolean
+          public_depth?: string
+          public_token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sharing_settings_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      board_json: {
+        Args: { p_depth: string; p_from: string; p_id: string; p_to: string }
+        Returns: Json
+      }
       claim_share: {
         Args: { p_token: string }
         Returns: {
@@ -275,6 +308,11 @@ export type Database = {
         }[]
       }
       display_snapshot: { Args: { p_token: string }; Returns: Json }
+      effective_depth: {
+        Args: { p_owner: string; p_viewer: string }
+        Returns: string
+      }
+      public_snapshot: { Args: { p_token: string }; Returns: Json }
       viewer_depth: { Args: { p_owner: string }; Returns: string }
     }
     Enums: {

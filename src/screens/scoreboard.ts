@@ -184,7 +184,7 @@ void (async () => {
   if (claim) {
     try {
       const g = await claimShare(claim)
-      notice = `${g.ownerName} shared their ${g.depth === 'full' ? 'full grid' : 'summary scores'} with you. Their board is on your list.`
+      notice = g.depth === null ? `${g.ownerName} isn't sharing right now.` : `${g.ownerName} shared their ${g.depth === 'full' ? 'full grid' : 'summary scores'} with you. Their board is on your list.`
     } catch (e) {
       notice = /not found/i.test(String(e)) ? 'That share link is not valid.' : /own share/i.test(String(e)) ? 'That is your own share link.' : `Could not claim the link: ${String((e as Error).message ?? e)}`
     }
