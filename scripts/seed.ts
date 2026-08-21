@@ -1,6 +1,6 @@
 // Seed generated sample data for testing (D3: no history import; test with generated data).
 // Creates three test users with 60 days of history, shares between them, and a composer config.
-// Run: `npm run seed` with SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in the environment (never in the repo).
+// Run: `npm run seed` with SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY and SEED_PASSWORD in the environment (never in the repo).
 // Remove: `npm run seed -- --clean` deletes the same users and everything under them (cascades).
 
 import { createClient } from '@supabase/supabase-js'
@@ -10,10 +10,10 @@ import { dailyScoresForRange } from '../src/domain/scoring'
 
 const url = process.env.SUPABASE_URL
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-if (!url || !key) { console.error('Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.'); process.exit(1) }
+const PASSWORD = process.env.SEED_PASSWORD
+if (!url || !key || !PASSWORD) { console.error('Set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY and SEED_PASSWORD.'); process.exit(1) }
 const admin = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } })
 
-const PASSWORD = 'winmatrix-test-2026'
 const USERS = [
   { email: 'wm-test-mim@example.com', name: 'Mim', base: 0.9 },
   { email: 'wm-test-rob@example.com', name: 'Rob', base: 0.82 },
@@ -88,7 +88,7 @@ async function seed(): Promise<void> {
     { ownerId: rob, show: true, featured: false, avg7: true, avg28: true, last7: true, ops: false, mode: 'both' },
     { ownerId: kate, show: true, featured: false, avg7: true, avg28: true, last7: true, ops: true, mode: 'both' },
   ] }))
-  console.log(`done. Sign in as any of ${USERS.map((u) => u.email).join(', ')} with password ${PASSWORD}`)
+  console.log(`done. Sign in as any of ${USERS.map((u) => u.email).join(', ')} with the SEED_PASSWORD you set`)
   console.log('display: display.html?key=seed-mim-display-0001   claim as Kate: scoreboard.html?claim=seed-rob-full-link-0001')
 }
 
