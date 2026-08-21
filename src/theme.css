@@ -95,7 +95,7 @@ button:focus-visible { outline: 2px solid var(--color-accent) !important; outlin
 .nav-links a[aria-current="page"] { color: var(--color-accent); box-shadow: inset 0 -2px 0 var(--color-accent); }
 .nav-user { display: inline-flex; align-items: center; gap: 8px; font: 600 12px var(--font-heading); color: var(--color-neutral-700); }
 
-.dialog-backdrop { position: fixed; inset: 0; display: grid; place-items: center; padding: var(--space-4); background: color-mix(in srgb, var(--color-neutral-900) 50%, transparent); z-index: 50; }
+.dialog-backdrop { position: fixed; inset: 0; display: grid; place-items: center; padding: var(--space-4); background: rgb(0 0 0 / 0.55); z-index: 50; } /* Modernist mixes neutral-900, which lightens the dark theme */
 .dialog { width: min(440px, 100%); display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-elev); box-shadow: var(--shadow-lg); }
 .dialog-title { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: 20px; }
 .dialog-body { font-size: 14px; opacity: 0.85; margin: 0; }
