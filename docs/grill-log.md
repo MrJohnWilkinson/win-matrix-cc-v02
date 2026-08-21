@@ -144,3 +144,10 @@ Continues numbering from the Claude Design sessions (Q1-Q15 in decisions.md, Q16
 - Docs: `CLAUDE.md` named a non-existent `src/data/scores.ts` as the writer; corrected. Design grill log Q16-Q26 copied to `docs/design-grill-log.md`. `docs/design/` now carries `support.js` and the original `_ds/` folder name so the screens open. C1 recorded in `decisions.md`. PROJECT-RECORD kept verbatim with a one-line pointer to what changed.
 - Numbering note: there is no F14 in this log; findings run F7-F13, F15, F16.
 - Open, not changed: DC2 says each user's own timezone, the build uses the device date (`profiles` has no timezone); the wall display makes that visible when it sits in another zone. Guardrail drift flagged, no action: `matrix.ts` carries five workflows (R3); `loadGrantsForOwner` and `ENTRY_STATES` unused (R6); `tsconfig` includes `src` only so `npm run check` never typechecks `scripts/` (R8); `.btn-primary` text is `#fff` where Modernist uses `var(--color-bg)`, and the `--color-accent-2-*` ramp was dropped.
+
+## 2026-08-21_2153 - Design project re-imported via the Claude Design MCP
+
+- Pulled the live project `faf009b5` (13 files). Against the 18:43 export only three differed: `Scoreboard Display.dc.html` (Q27, every tile element centred), `PROJECT-RECORD.md` (Q27 sentence, Q16-Q27 note), the design grill log (entries 21:06-21:45, Q27-Q29), plus a rewritten design `CLAUDE.md`.
+- Ported Q27 into `src/screens/display.ts`: name row, TODAY block, ops list, "+N more", averages and last-7 strip all centre. Five style values, no logic change.
+- Copies refreshed under `docs/design/`; the design `CLAUDE.md` is stored as `docs/design/handoff-instructions.md` so it is not auto-loaded over this repo's rules. `docs/design-grill-log.md` carries the new entries.
+- Design Q27-Q29 numbers collide with this log's Q27-Q29 (different questions); the design log's prefix "design" disambiguates when cited.

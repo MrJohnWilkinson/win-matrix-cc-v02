@@ -1,5 +1,5 @@
 // Wall display (Q34): pure glass. Opens by token (`?key=`), no sign-in, no controls until the mouse
-// moves. Swiss modular grid from src/ui/layout; numbers from src/domain/board. Anonymous, so no
+// moves. Tile content centres at every board count (Q27). Swiss modular grid from src/ui/layout; numbers from src/domain/board. Anonymous, so no
 // private realtime channel: a 10s poll of display_snapshot keeps it current. Visuals follow docs/design/Scoreboard Display.dc.html.
 
 import '../theme.css'
@@ -77,13 +77,13 @@ function view(): Html {
         const mk = (state: EntryState | undefined, size: number, font: number) => html`<span class="${state ? 'st-' + state : ''}" style="width: ${size}px; height: ${size}px; flex: none; display: inline-flex; align-items: center; justify-content: center; font: 800 ${font}px var(--font-heading); ${cellStyle(state)}">${state ?? ''}</span>`
         return html`
           <div style="grid-column: ${arr.spans[i]}; background: var(--color-bg); color: var(--color-text); padding: ${s('pad')}px; display: flex; flex-direction: column; overflow: hidden; outline: ${recent ? '3px solid var(--color-accent)' : 'none'}; outline-offset: -3px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
               <span class="sq sq-10 sq-accent"></span>
               <span style="font: 800 ${s('label')}px var(--font-heading); letter-spacing: 0.14em; text-transform: uppercase;">${board.name}</span>
               <span class="sq sq-accent" style="width: 9px; height: 9px; display: ${recent ? 'inline-block' : 'none'}; animation: livepulse 1.2s infinite;"></span>
             </div>
-            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0;">
-              <div style="flex: none;">
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 0;">
+              <div style="flex: none; text-align: center;">
                 <div style="font-size: ${s('kick')}px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-neutral-600);">Today</div>
                 <div class="tone-${tone(st.today)}" style="font: 800 ${s('num')}px var(--font-heading); line-height: 0.95; letter-spacing: -0.03em;">${formatScore(st.today)}</div>
               </div>
@@ -93,10 +93,10 @@ function view(): Html {
                   <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 24px;">
                     ${opsList.map((o) => html`<div style="display: flex; align-items: center; gap: 8px; font-size: ${s('op')}px;">${mk(o.state, s('mk'), s('cell'))}<span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${o.name}</span></div>`)}
                   </div>
-                  ${when(opsAll.length > opsCap, () => html`<div style="font-size: ${s('kick')}px; letter-spacing: 0.08em; color: var(--color-neutral-600); margin-top: 4px;">+ ${opsAll.length - opsCap} MORE</div>`)}
+                  ${when(opsAll.length > opsCap, () => html`<div style="font-size: ${s('kick')}px; letter-spacing: 0.08em; color: var(--color-neutral-600); margin-top: 4px; text-align: center;">+ ${opsAll.length - opsCap} MORE</div>`)}
                 </div>`)}
             </div>
-            <div style="display: flex; flex-direction: column; gap: ${s('gap')}px;">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: ${s('gap')}px;">
               ${when(item.avg7 || item.avg28, () => html`
                 <div style="display: flex; gap: 32px; align-items: baseline;">
                   ${when(item.avg7, () => html`<div style="display: flex; gap: 10px; align-items: baseline;"><span style="font-size: ${s('kick')}px; letter-spacing: 0.12em; color: var(--color-neutral-600);">7-DAY</span><span class="tone-${tone(st.avg7)}" style="font: 800 ${s('avg')}px var(--font-heading);">${formatScore(st.avg7)}</span></div>`)}

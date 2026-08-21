@@ -167,3 +167,33 @@ Numbering continues from the lost session (Q1-Q15 in decisions.md).
 - Deleted: uploads/ old bundle (38 files) and the review doc (Q26).
 - Project root now IS the export bundle (Q25); export awaits John.
 
+
+## 2026-08-21 ~21:06 - Display Imbalance Flagged
+
+- John flagged the single-board display as imbalanced: content pinned hard-left on a full-width tile.
+- First fix capped the single-board content column at 940px scaled, centred as a block.
+
+## 2026-08-21 ~21:15 - Q27 Asked and Answered: O1
+
+- Q27: replace the cap with full-width tiles whose elements all centre, identical at every board count? O1 build, O2 amend.
+- Q27 = O1: REQ1-REQ6 built; cap and count-branching removed.
+- Centering now lives in six template style values: name row, TODAY block, ops list, marks, averages, last-7 strip.
+
+## 2026-08-21 ~21:20 - Second Export Prep
+
+- Removed: uploads/ (one feedback screenshot, already acted on).
+- PROJECT-RECORD.md display entry updated for the Q27 centred layout.
+- Project root is again the clean bundle; export awaits John.
+
+## 2026-08-21 ~21:35 - Handoff Ambiguity Audit (Q28-Q29)
+
+- F1 fixed: PROJECT-RECORD grill-log entry now says Q16-Q27 and warns early log lines describe since-fixed defects.
+- F2 / Q28 OPEN: shipped CLAUDE.md carries chat-format rules Claude Code would wrongly adopt; O1 rewrite for implementer, O2 rename away, O3 keep.
+- F3 / Q29 resolved: the 1406 findings doc is lost; brief now says so, points schema derivation at PROJECT-RECORD's storage mapping.
+
+## 2026-08-21 ~21:45 - Q28 Answered: O1
+
+- Q28 = O1: CLAUDE.md rewritten for the implementer.
+- Contents now: project intent, read order, hard rules (scoring spec, seams, storage split, 85-rule copy, handoff notes), candour + hyphen rules.
+- Dropped: chat bullet grammar, reference codes, grill-session logging duties.
+- Bundle audit complete; export awaits John.

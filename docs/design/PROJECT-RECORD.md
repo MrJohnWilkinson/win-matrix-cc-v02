@@ -1,6 +1,6 @@
 # PROJECT-RECORD
 
-Verbatim copy of the design bundle's record. Where it describes auth (magic link), Lucide icons, prototype seams, or a subscribing display, the build differs; `../grill-log.md` and `../decisions.md` (C1) are current.
+Verbatim copy of the design project's record (pulled 2026-08-21_2153 via the Claude Design MCP). Where it describes auth (magic link), Lucide icons, prototype seams, or a subscribing display, the build differs; `../grill-log.md` and `../decisions.md` (C1) are current.
 
 Win Matrix - project record for the Claude Code handoff. Updated 2026-08-21 (AEST). Current state only; superseded history lives nowhere in this bundle on purpose (Q19 = O1). Spec authority: `2026-08-21_1442_ops-matrix-app-brief.md` + `decisions.md`.
 
@@ -9,11 +9,11 @@ Win Matrix - project record for the Claude Code handoff. Updated 2026-08-21 (AES
 - `Login.dc.html` - email magic-link sign-in (Q14); display name defaults from email (Q15); demo-session button is a prototype seam.
 - `Win Matrix.dc.html` - the matrix: daily entry + op management. Ops as columns, days as rows (earliest top, today bottom, 2 dimmed future rows for planned Byes). Click cycles blank > W > C > B; drag paints a run; future cells take Byes only. Windows: Today / Roll 7 / Roll 28 (Q4). Frozen header + 7-day and 28-day per-op average rows; Score column before the ops so columns never shift. Op menu: rename, colour tag, note (DC6), reorder, archive from date (D9), delete (confirm, A8). Share dialog: summary vs full-grid depth (D8).
 - `Scoreboard.dc.html` - the composer: per board show/hide, element toggles gated by granted depth, FEATURE band, reorder, ops-panel mode on the user's own board only (A6/D7). Live 16:9 arrangement preview, fixed 104px chip tracks.
-- `Scoreboard Display.dc.html` - pure glass wall display: no controls, Swiss modular grid, rebalances at any board count, type steps a scale. Mouse reveals A-/A+/Reset + COMPOSE; keyboard +/-. Bottom stats anchored; mid-tile ops list clips with "+N more".
+- `Scoreboard Display.dc.html` - pure glass wall display: no controls, Swiss modular grid, rebalances at any board count, type steps a scale. Mouse reveals A-/A+/Reset + COMPOSE; keyboard +/-. All tile content centre-aligned at full width, one identical layout path at every board count (Q27); bottom stats anchored; mid-tile ops list clips with "+N more".
 - `_ds/modernist-.../` - the bound Modernist design system; the ONLY stylesheet source (Q20).
 - `support.js` - Design Component runtime (prototype plumbing; do not port).
 - `decisions.md` - resolved decisions Q1-Q15 + A-codes + inferred question list.
-- `2026-08-21_1705_grill-session-log.md` - Q16-Q26 audit trail (Q17 = O3 ships it).
+- `2026-08-21_1705_grill-session-log.md` - Q16-Q27 audit trail (Q17 = O3 ships it). Early entries describe defects found THEN fixed; the resolutions further down each thread are current.
 
 ## Theme (current scheme - no other palette applies)
 

@@ -29,13 +29,13 @@ a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
 <div style="height: 100vh; background: var(--color-divider); border: 2px solid var(--color-divider); box-sizing: border-box; display: grid; gap: 2px; grid-template-columns: {{gcols}}; grid-template-rows: {{grows}}; font-family: var(--font-body); cursor: default; user-select: none;">
   <sc-for list="{{tiles}}" as="t" hint-placeholder-count="3">
     <div style="grid-column: {{t.span}}; background: var(--color-bg); color: var(--color-text); padding: {{t.pad}}px; display: flex; flex-direction: column; overflow: hidden; outline: {{t.ring}}; outline-offset: -3px;">
-      <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
         <span style="width: 10px; height: 10px; background: var(--color-accent); flex: none;"></span>
         <span style="font: 800 {{t.s.label}}px var(--font-heading); letter-spacing: 0.14em; text-transform: uppercase;">{{t.name}}</span>
         <span style="width: 9px; height: 9px; background: var(--color-accent); display: {{t.liveDot}}; animation: livepulse 1.2s infinite;"></span>
       </div>
-      <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-height: 0;">
-        <div style="flex: none;">
+      <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 0;">
+        <div style="flex: none; text-align: center;">
           <div style="font-size: {{t.s.kick}}px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-neutral-600);">Today</div>
           <div style="font: 800 {{t.s.num}}px var(--font-heading); line-height: 0.95; letter-spacing: -0.03em; color: {{t.todayC}};">{{t.today}}</div>
         </div>
@@ -56,11 +56,11 @@ a { color: var(--color-accent); } a:hover { color: var(--color-accent-600); }
                 </div>
               </sc-for>
             </div>
-            <div style="font-size: {{t.s.kick}}px; letter-spacing: 0.08em; color: var(--color-neutral-600); margin-top: 4px;">{{t.opsMore}}</div>
+            <div style="font-size: {{t.s.kick}}px; letter-spacing: 0.08em; color: var(--color-neutral-600); margin-top: 4px; text-align: center;">{{t.opsMore}}</div>
           </div>
         </sc-if>
       </div>
-      <div style="display: flex; flex-direction: column; gap: {{t.gap}}px;">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: {{t.gap}}px;">
         <sc-if value="{{t.showAvgRow}}" hint-placeholder-val="{{false}}">
           <div style="display: flex; gap: 32px; align-items: baseline;">
             <sc-if value="{{t.show7}}" hint-placeholder-val="{{false}}">
