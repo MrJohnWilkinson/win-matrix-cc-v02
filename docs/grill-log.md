@@ -151,3 +151,10 @@ Continues numbering from the Claude Design sessions (Q1-Q15 in decisions.md, Q16
 - Ported Q27 into `src/screens/display.ts`: name row, TODAY block, ops list, "+N more", averages and last-7 strip all centre. Five style values, no logic change.
 - Copies refreshed under `docs/design/`; the design `CLAUDE.md` is stored as `docs/design/handoff-instructions.md` so it is not auto-loaded over this repo's rules. `docs/design-grill-log.md` carries the new entries.
 - Design Q27-Q29 numbers collide with this log's Q27-Q29 (different questions); the design log's prefix "design" disambiguates when cited.
+
+## 2026-08-21_2229 - Design project re-pulled (Win Matrix, CLAUDE.md, AGENTS.md)
+
+- `Win Matrix.dc.html` unchanged since the 2153 pull; no code to port.
+- Design `CLAUDE.md` gained a "Bundle version" header, marks A1/A2 done, and pins Supabase refs per build: this repo = `mzwuxjxtigapyoiqcrta` (matches `.env`), Codex = `xpagxbjjiuudkbwxhpdt` (never written by this repo). `AGENTS.md` is its declared identical copy. Stored as `docs/design/handoff-instructions.md`.
+- Its "Lucide icons" and "magic link" rules remain superseded here by R1-R8 and C1.
+- The project also now holds `uploads/Screenshot 2026-08-21 221429.png`; not imported (not part of the selection).

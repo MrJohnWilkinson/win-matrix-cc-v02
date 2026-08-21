@@ -1,6 +1,15 @@
 # CLAUDE.md - Win Matrix implementation
 
-(Design project's `CLAUDE.md`, stored here under another name so it is not auto-loaded; the repo root `CLAUDE.md` R1-R8 governs this repo.)
+(Design project's `CLAUDE.md`, identical to its `AGENTS.md`; stored here under another name so it is not auto-loaded. The repo root `CLAUDE.md` R1-R8 governs this repo. Pulled via the Claude Design MCP.)
+
+CLAUDE.md and AGENTS.md are identical copies (Claude Code reads one, Codex the other). Any edit to one applies to both.
+
+## Bundle version - read first
+
+- This bundle supersedes the 2026-08-21 pre-21:00 export you may have started from.
+- If you began on the earlier bundle: re-read this file, PROJECT-RECORD.md, and the brief in full before continuing; diff your work against them.
+- The earlier CLAUDE.md carried chat-format rules (bullet grammar, reference codes, grill logging). They were never implementation instructions - drop any behaviour you adopted from them.
+- Superseded specifics: Scoreboard Display tiles now centre all content (Q27), the 1406 findings doc is declared lost (Q29), Supabase refs are assigned per build (below).
 
 Instructions for the agent implementing this handoff. Rewritten 2026-08-21 (Q28 = O1); the design-chat formatting rules that previously lived here do not apply to implementation work.
 
@@ -28,4 +37,4 @@ Instructions for the agent implementing this handoff. Rewritten 2026-08-21 (Q28 
 
 - Challenge incorrect assumptions directly; state why they fail. No flattery.
 - Write hyphens, never em or en dashes.
-- Open items needing John: A1 pause old Supabase project, A2 create the new free-plan project.
+- A1/A2 are DONE: the old Supabase project is paused. This handoff feeds TWO parallel builds, each with its own free-plan Supabase project - Claude Code uses ref mzwuxjxtigapyoiqcrta, Codex uses ref xpagxbjjiuudkbwxhpdt. Use the ref for YOUR build; never write to the other.
